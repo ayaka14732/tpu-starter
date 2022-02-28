@@ -1,0 +1,38 @@
+ipykernel
+ipywidgets
+jupyter
+
+# Common ML libraries
+matplotlib
+Pillow
+sklearn
+
+# Tensorflow (JAX and PyTorch also rely on these)
+/usr/share/tpu/tf_nightly-2.7.0-cp38-cp38-linux_x86_64.whl; python_version=='3.8'
+tfds-nightly
+tensorboard-plugin-profile
+
+# libtpu (for JAX and PyTorch)
+--find-links https://storage.googleapis.com/jax-releases/libtpu_releases.html
+libtpu_nightly  # if not working, downgrade to 0.1.dev20220128
+
+# JAX
+jax >= 0.3.1 
+flax
+dm-haiku
+optax
+numpyro
+
+# PyTorch
+torch >= 1.10, < 1.11
+https://storage.googleapis.com/tpu-pytorch/wheels/tpuvm/torch_xla-1.10-cp38-cp38-linux_x86_64.whl; python_version=='3.8'
+accelerate
+
+# Common DL libraries
+transformers
+datasets
+
+# Common DL Tools
+kaggle
+wandb
+gdown

@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "streetsidesoftware.code-spell-checker",
+        "ms-python.python",
+        "eamodio.gitlens",
+        "tyriar.sort-lines"
+    ]
+}
