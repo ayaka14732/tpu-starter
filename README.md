@@ -8,15 +8,19 @@ Everything you want to know about Google Cloud TPUs
 
 ### 1.1. Why do you need TPU?
 
-**TL;DR: TPU is to GPU as GPU is to CPU**
+**TL;DR**: TPU is to GPU as GPU is to CPU.
 
 TPU is a special hardware designed specifically for machine learning. Therefore, machine learning (including deep learning) programs run much faster on TPU.
+
+There is a [performance comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
+
+![](assets/5.png)
 
 ### 1.2. When do you not need a TPU?
 
 There are some known issues and drawbacks with TPU.
 
-1. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
+1. If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
 2. One single TPU v3-8 device has 8 cores (16 GiB memory for each core), but you need to write extra code to make use of all the 8 cores (see [named axes and easy-to-revise parallelism](https://jax.readthedocs.io/en/latest/notebooks/xmap_tutorial.html) in the JAX documentation). Otherwise, only the first core is used.
 
 ### 1.3. TPU is good. Can I touch a real TPU?
@@ -146,12 +150,20 @@ c = np.dot(a, b)
 print(c.shape)
 ```
 
+## 3. JAX Basics
+
+(Coming soon)
+
 ## 6. More Resources about TPU
 
-- Product page: https://cloud.google.com/tpu
-- Documentation: https://cloud.google.com/tpu/docs
-- TPU Research Cloud: https://sites.research.google/trc/about/
-- Hugging Face Accelerate: https://github.com/huggingface/accelerate
+Libraries:
+
+- [Hugging Face Accelerate](https://github.com/huggingface/accelerate) - accelerate PyTorch code on TPU (but PyTorch's performance on TPU is not ideal)
+
+Tutorials:
+
 - https://github.com/shawwn/jaxnotes/blob/master/notebooks/001_jax.ipynb
 
-Community: As of 23 Feb, 2022, there is no official chat group for Cloud TPUs. You can join our unofficial chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram.
+Community:
+
+As of 23 Feb, 2022, there is no official chat group for Cloud TPUs. You can join our unofficial chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram.
