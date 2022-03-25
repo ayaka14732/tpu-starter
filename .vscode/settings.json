@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "PRNG",
         "arange",
         "asarray",
         "astype",
@@ -7,12 +8,15 @@
         "cifar",
         "einsum",
         "fwdwd",
+        "hstack",
         "ndarray",
         "optax",
-        "PRNG",
+        "tqdm",
+        "trange",
         "relu",
         "stax",
         "vocab",
+        "vstack",
         "wandb"
     ],
     "python.formatting.provider": "autopep8",
