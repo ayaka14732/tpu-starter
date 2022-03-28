@@ -12,51 +12,37 @@ Everything you want to know about Google Cloud TPUs
 
 TPU is a special hardware designed specifically for machine learning, so it is more cost-effective to use TPU than GPU.
 
-Generally speaking, machine learning (including deep learning) programs run much faster on TPU. There is a [performance comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
+Generally speaking, TPU is faster. There is a [performance comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
 
 ![](assets/5.png)
 
-For researchers, the [TRC program](https://sites.research.google/trc/about/) provides free TPU, so this is the best way to get computational resources. For more details on the TRC program, please see below.
+Moreover, for researchers, [the TRC program](https://sites.research.google/trc/about/) provides free TPU. As far as I know, this is the best computing resource available for research. For more details on the TRC program, please see below.
 
 ### 1.2. TPU is so good, why isn't it popular?
 
-1\. If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
+If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
 
-2\. Although a single TPU v3-8 device has 8 cores (16 GiB memory for each core), you need to write extra code to make use of all the 8 cores (see [named axes and easy-to-revise parallelism](https://jax.readthedocs.io/en/latest/notebooks/xmap_tutorial.html) in the JAX documentation). Otherwise, only the first core is used.
+Another problem is that although a single TPU v3-8 device has 8 cores (16 GiB memory for each core), you need to write extra code to make use of all the 8 cores (see [named axes and easy-to-revise parallelism](https://jax.readthedocs.io/en/latest/notebooks/xmap_tutorial.html) in the JAX documentation). Otherwise, only the first core is used.
 
 ### 1.3. I know TPU is good now. Can I touch a real TPU?
 
-Unfortunately, in most cases you cannot touch a TPU physically. They are only available through cloud services.
+Unfortunately, in most cases you cannot touch a TPU physically. TPU is only available through cloud services.
 
 ### 1.4. How do I get access to TPU?
 
-You can create TPU instances on [Google Cloud Platform](https://cloud.google.com/tpu). For more information on setting up TPU, please see below. You can also use [Google Colab](https://colab.research.google.com/), but I don't recommend it. Besides, if you get free access to TPU from the [TRC program](https://sites.research.google/trc/about/), you will be using Google Cloud Platform, not Google Colab.
+You can create TPU instances on [Google Cloud Platform](https://cloud.google.com/tpu). For more information on setting up TPU, please see below.
+
+You can also use [Google Colab](https://colab.research.google.com/), but I don't recommend this way. Moreover, if you get free access to TPU from the [TRC program](https://sites.research.google/trc/about/), you will be using Google Cloud Platform, not Google Colab.
 
 ### 1.5. What does it mean to create a TPU instance? What do I actually get?
 
-After creating a TPU v3-8 instance on Google Cloud Platform, you will get a Ubuntu 20.04 cloud server with sudo access, 96 cores, 335 GiB memory and one TPU device with 8 cores (128 GiB TPU memory in total).
+After creating a TPU v3-8 instance on [Google Cloud Platform](https://cloud.google.com/tpu), you will get a Ubuntu 20.04 cloud server with sudo access, 96 cores, 335 GiB memory and one TPU device with 8 cores (128 GiB TPU memory in total).
 
-This is very similar to the way we use GPU. In most cases, when you use a GPU, you use a Linux server that connects with a GPU. When you use a TPU, you use a Linux server that connects with a TPU.
-
-TODO: Add a htop image here.
-
-After SSH-ing in to the server, you can open a Python REPL and do some computation without TPU:
-
-![](assets/3.png)
-
-Or you can do some calculations on TPU:
-
-![](assets/4.png)
+This is similar to the way we use GPU. In most cases, when you use a GPU, you use a Linux server that connects with a GPU. When you use a TPU, you use a Linux server that connects with a TPU.
 
 ### 1.6. How to apply for the TRC program?
 
-You will have free access to TPU for 30 days if you apply for the [TPU Research Cloud](https://sites.research.google/trc/about/) program. Shawn has written a wonderful article in [google/jax#2108](https://github.com/google/jax/issues/2108#issuecomment-866238579). Anyone who is interested in TPU should read it immediately.
-
-### 1.7. TODO
-
-- Cloud TPU machine: TPU VM, TPU Node (deprecated), Colab TPU (different)
-- Deep learning libraries: [Tensorflow](Tensorflow) (officially supported by Google), [PyTorch](https://pytorch.org/) (supports TPU via PyTorch XLA), [JAX](https://github.com/google/jax) (latest and most suitable for TPU)
-- Linear algebra libraries: [NumPy](https://numpy.org/) (CPU only), [JAX](https://github.com/google/jax) (cross-platform)
+You can learn more about the TRC program on its [homepage](https://sites.research.google/trc/about/). Shawn has written a wonderful article about the TRC program in [google/jax#2108](https://github.com/google/jax/issues/2108#issuecomment-866238579). Anyone who is interested in TPU should read it immediately.
 
 ## 2. Environment Setup
 
@@ -74,7 +60,7 @@ In Cloud Shell, type the following command to create a Cloud TPU VM v3-8 with TP
 gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone=europe-west4-a --accelerator-type=v3-8 --version=v2-nightly20210914
 ```
 
-If the command fails because Google has no more TPUs to allocate, you can rerun the command again.
+If the command fails because there are no more TPUs to allocate, you can re-run the command again.
 
 ### 2.2. Modify VPC firewall
 
@@ -156,6 +142,15 @@ TODO: Introduce oh-my-zsh, mosh, byobu, VSCode Remote-SSH.
 
 TODO: Compare JAX, Tensorflow and PyTorch.
 
+- [Tensorflow](Tensorflow) (officially supported by Google)
+- [PyTorch](https://pytorch.org/) (supports TPU via PyTorch XLA)
+- [JAX](https://github.com/google/jax) (latest and most suitable for TPU)
+
+NumPy vs JAX:
+
+- [NumPy](https://numpy.org/) (CPU only)
+- [JAX](https://github.com/google/jax) (cross-platform)
+
 ### 3.2. The JAX ecosystem
 
 - [JAX](https://github.com/google/jax) (basis)
@@ -165,19 +160,43 @@ TODO: Compare JAX, Tensorflow and PyTorch.
 
 ## 4. Best Practices
 
-### 4.1. Import convention
+### 4.1. Prefer GCP over Colab
+
+### 4.2. Prefer TPU VM over TPU Nodes
+
+### 4.3. Import convention
 
 On 16 January 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as `onp`.
 
 On 5 November 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as `jnp` and to leave original numpy as `np`.
 
-### 4.2. Share files across multiple TPU VM instances
+TODO: Conclusion?
+
+### 4.4. Share files across multiple TPU VM instances
 
 TODO: Internal IP, maybe sshfs?
 
-### 4.3. Manage random keys in JAX
+### 4.5. Manage random keys in JAX
 
-### 4.4. Serialize model parameters
+### 4.6. Serialize model parameters
+
+Normally, the model parameters are represented by a nested dictionary.
+
+See [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize).
+
+### 4.7. Convertion between NumPy array and JAX array
+
+`np.asarray`
+
+### 4.8. Type annotation
+
+`np.ndarray`
+
+### 4.9. Check an array is a NumPy array or a JAX array
+
+```python
+isinstance(a, (np.ndarray, onp.ndarray))
+```
 
 ## 5. Common Questions
 
@@ -189,7 +208,38 @@ TODO: Internal IP, maybe sshfs?
 
 ### 6.1. Indexing an array with an array
 
+```python
+import jax.numpy as np
+import numpy as onp
+
+a = onp.arange(12).reshape((6, 2))
+b = onp.arange(6).reshape((2, 3))
+
+a_ = np.asarray(a)
+b_ = np.asarray(b)
+
+a[b]  # success
+a_[b_]  # success
+a_[b]  # success
+a[b_]  # error: index 3 is out of bounds for axis 1 with size 2
+```
+
+Generally speaking, JAX supports NumPy arrays, but NumPy does not support JAX arrays.
+
 ### 6.2. `np.dot` and `torch.dot` is different!
+
+```python
+import numpy as onp
+import torch
+
+a = onp.random.rand(3, 4, 5)
+b = onp.random.rand(4, 5, 6)
+onp.dot(a, b)  # success
+
+a_ = torch.from_numpy(a)
+b_ = torch.from_numpy(b)
+torch.dot(a_, b_)  # error: 1D tensors expected, but got 3D and 3D tensors
+```
 
 ### 6.3. TPU cannot do simple arithmetic!
 
