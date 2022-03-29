@@ -181,9 +181,9 @@ TPU VM is the new architecture in which TPU devices are connected to the host VM
 
 You may see two different kind of import conventions. One is to import `jax.numpy` as `np` and import the original numpy as `onp`. Another one is to import `jax.numpy` as `jnp` and leave original numpy as `np`.
 
-On 16 January 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as `onp`.
+On 16 Jan 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as `onp`.
 
-On 5 November 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as `jnp` and to leave original numpy as `np`.
+On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as `jnp` and to leave original numpy as `np`.
 
 TODO: Conclusion?
 
@@ -197,7 +197,7 @@ TPU VM instances in the same zone are connected with internal IPs, so you can cr
 
 Normally, the model parameters are represented by a nested dictionary like this:
 
-```json
+```python
 {
     "embedding": DeviceArray,
     "ff1": {
@@ -238,7 +238,7 @@ d = np.asarray(c)  # converted to JAX array
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
-## 5. Common Questions
+## 5. Confusing syntax
 
 ### 5.1. What is `a[:, None]`?
 
@@ -281,7 +281,20 @@ b_ = torch.from_numpy(b)
 torch.dot(a_, b_)  # error: 1D tensors expected, but got 3D and 3D tensors
 ```
 
-### 6.3. TPU cannot do simple arithmetic!
+### 6.3. `np.std` and `torch.std` is different!
+
+```python
+import torch
+
+x = torch.tensor([[-1., 1.]])
+
+print(x.std(-1).numpy())  # [1.4142135]
+print(x.numpy().std(-1))  # [1.]
+```
+
+This is because in [`np.std`](https://numpy.org/doc/stable/reference/generated/numpy.std.html) the denominator is _n_, while in [`torch.std`](https://pytorch.org/docs/stable/generated/torch.std.html) it is _n_-1. See [pytorch/pytorch#1854](https://github.com/pytorch/pytorch/issues/1854) for details.
+
+### 6.4. TPU cannot do simple arithmetic!
 
 You need to add this line at the top of the script:
 
@@ -292,6 +305,24 @@ jax.config.update('jax_default_matmul_precision', jax.lax.Precision.HIGHEST)
 
 See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
 
+### 6.5. External IP of TPU machine can be reset
+
+As of 17 Feb 2022, the external IP addresses may change if there is a maintenance event. If this happens, you need to reconnect with the new IP addresses.
+
+### 6.6. One TPU device can only be used by one process at a time
+
+Unlike GPU, you cannot run two processes on the TPU at the same time. Otherwise you will get this error:
+
+```
+I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so already in use by another process. Run "$ sudo lsof -w /dev/accel0" to figure out which process is using the TPU. Not attempting to load libtpu.so in this process.
+```
+
+Even if a TPU device has 8 cores and the first process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
+
+### 6.7. There is no such thing as `nvidia-smi`
+
+See [google/jax#9756](https://github.com/google/jax/discussions/9756).
+
 ## 7. Community
 
-As of 23 Feb, 2022, there is no official chat group for Cloud TPUs. You can join my chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram.
+As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join my chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram.
