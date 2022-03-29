@@ -2,7 +2,49 @@
 
 Everything you want to know about Google Cloud TPUs
 
-**Note**: This is a TPU introduction article in progress. It will be expand and revised in the near future.
+* [1. Introduction](#1-introduction)
+    * [1.1. Why TPU?](#11-why-tpu)
+    * [1.2. TPU is so good, why isn't it popular?](#12-tpu-is-so-good-why-isnt-it-popular)
+    * [1.3. I know TPU is good now. Can I touch a real TPU?](#13-i-know-tpu-is-good-now-can-i-touch-a-real-tpu)
+    * [1.4. How do I get access to TPU?](#14-how-do-i-get-access-to-tpu)
+    * [1.5. What does it mean to create a TPU instance? What do I actually get?](#15-what-does-it-mean-to-create-a-tpu-instance-what-do-i-actually-get)
+    * [1.6. How to apply for the TRC program?](#16-how-to-apply-for-the-trc-program)
+* [2. Environment Setup](#2-environment-setup)
+    * [2.1. Modify VPC firewall](#21-modify-vpc-firewall)
+    * [2.2. Create a TPU instance](#22-create-a-tpu-instance)
+    * [2.3. Add public key to the server](#23-add-public-key-to-the-server)
+    * [2.4. Basic configurations](#24-basic-configurations)
+    * [2.4. How can I verify that the TPU is working?](#24-how-can-i-verify-that-the-tpu-is-working)
+    * [2.5. Development environment](#25-development-environment)
+* [3. JAX Basics](#3-jax-basics)
+    * [3.1. Why JAX?](#31-why-jax)
+    * [3.2. Compute gradient with jax.grad](#32-compute-gradient-with-jaxgrad)
+    * [3.3. Use optimizers from optax](#33-use-optimizers-from-optax)
+* [4. Best Practices](#4-best-practices)
+    * [4.1. Prefer GCP over Colab](#41-prefer-gcp-over-colab)
+    * [4.2. Prefer TPU VM over TPU Nodes](#42-prefer-tpu-vm-over-tpu-nodes)
+    * [4.3. Import convention](#43-import-convention)
+    * [4.4. Share files across multiple TPU VM instances](#44-share-files-across-multiple-tpu-vm-instances)
+    * [4.5. Manage random keys in JAX](#45-manage-random-keys-in-jax)
+    * [4.6. Serialize model parameters](#46-serialize-model-parameters)
+    * [4.7. Convertion between NumPy array and JAX array](#47-convertion-between-numpy-array-and-jax-array)
+    * [4.8. Type annotation](#48-type-annotation)
+    * [4.9. Check an array is a NumPy array or a JAX array](#49-check-an-array-is-a-numpy-array-or-a-jax-array)
+    * [4.10. Check the shapes of all parameters in a nested dictionary](#410-check-the-shapes-of-all-parameters-in-a-nested-dictionary)
+* [5. Confusing syntax](#5-confusing-syntax)
+    * [5.1. What is a[:, None]?](#51-what-is-a-none)
+    * [5.2. How to understand np.einsum?](#52-how-to-understand-npeinsum)
+* [6. Common Gotchas](#6-common-gotchas)
+    * [6.1. Indexing an array with an array](#61-indexing-an-array-with-an-array)
+    * [6.2. np.dot and torch.dot is different!](#62-npdot-and-torchdot-is-different)
+    * [6.3. np.std and torch.std is different!](#63-npstd-and-torchstd-is-different)
+    * [6.4. TPU cannot do simple arithmetic!](#64-tpu-cannot-do-simple-arithmetic)
+    * [6.5. External IP of TPU machine can be reset](#65-external-ip-of-tpu-machine-can-be-reset)
+    * [6.6. One TPU device can only be used by one process at a time](#66-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
+    * [6.7. There is no equivalent for nvidia-smi](#67-there-is-no-equivalent-for-nvidia-smi)
+* [7. Community](#7-community)
+
+<!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
 ## 1. Introduction
 
@@ -146,12 +188,16 @@ NumPy vs JAX:
 - [NumPy](https://numpy.org/) (CPU only)
 - [JAX](https://github.com/google/jax) (cross-platform)
 
-### 3.2. The JAX ecosystem
+The JAX ecosystem:
 
 - [JAX](https://github.com/google/jax) (basis)
 - [Flax](https://github.com/google/flax) (neural network)
 - [DM Haiku](https://github.com/deepmind/dm-haiku) (neural network)
 - [Optax](https://github.com/deepmind/optax) (optimizer)
+
+### 3.2. Compute gradient with `jax.grad`
+
+### 3.3. Use optimizers from `optax`
 
 ## 4. Best Practices
 
@@ -238,6 +284,12 @@ d = np.asarray(c)  # converted to JAX array
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
+### 4.10. Check the shapes of all parameters in a nested dictionary
+
+```python
+jax.tree_map(lambda x: x.shape, params)
+```
+
 ## 5. Confusing syntax
 
 ### 5.1. What is `a[:, None]`?
@@ -319,7 +371,7 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and the first process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-### 6.7. There is no such thing as `nvidia-smi`
+### 6.7. There is no equivalent for `nvidia-smi`
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
 
