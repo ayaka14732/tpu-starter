@@ -14,11 +14,11 @@ Everything you want to know about Google Cloud TPUs
     * [2.2. Create a TPU instance](#22-create-a-tpu-instance)
     * [2.3. Add public key to the server](#23-add-public-key-to-the-server)
     * [2.4. Basic configurations](#24-basic-configurations)
-    * [2.4. How can I verify that the TPU is working?](#24-how-can-i-verify-that-the-tpu-is-working)
-    * [2.5. Set up development environment](#25-set-up-development-environment)
-        * [2.5.1. Install Oh My Zsh](#251-install-oh-my-zsh)
-        * [2.5.2. Set up Mosh and Byobu](#252-set-up-mosh-and-byobu)
-        * [2.5.3. Set up VSCode Remote-SSH](#253-set-up-vscode-remote-ssh)
+    * [2.5. How can I verify that the TPU is working?](#25-how-can-i-verify-that-the-tpu-is-working)
+    * [2.6. Set up development environment](#26-set-up-development-environment)
+        * [2.6.1. Install Oh My Zsh](#261-install-oh-my-zsh)
+        * [2.6.2. Set up Mosh and Byobu](#262-set-up-mosh-and-byobu)
+        * [2.6.3. Set up VSCode Remote-SSH](#263-set-up-vscode-remote-ssh)
 * [3. JAX Basics](#3-jax-basics)
     * [3.1. Why JAX?](#31-why-jax)
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
@@ -169,7 +169,7 @@ Install common packages and libraries:
 pip install -r requirements.txt
 ```
 
-### 2.4. How can I verify that the TPU is working?
+### 2.5. How can I verify that the TPU is working?
 
 ```python
 import jax.numpy as np
@@ -177,9 +177,9 @@ a = np.array([1, 2, 3])
 print(a.device())  # should print TpuDevice
 ```
 
-### 2.5. Set up development environment
+### 2.6. Set up development environment
 
-#### 2.5.1. Install Oh My Zsh
+#### 2.6.1. Install Oh My Zsh
 
 [Oh My Zsh](https://ohmyz.sh/) makes the terminal much easier to use.
 
@@ -189,7 +189,7 @@ To install Oh My Zsh, run the following command:
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
 
-#### 2.5.2. Set up Mosh and Byobu
+#### 2.6.2. Set up Mosh and Byobu
 
 If you connect to the server directly with SSH, there is a risk of loss of connection. If this happens, the training script you are running in the foreground will be terminated.
 
@@ -203,11 +203,11 @@ mosh tpu1 -- byobu
 
 You can learn more about Byobu from this video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
 
-#### 2.5.3. Set up VSCode Remote-SSH
+#### 2.6.3. Set up VSCode Remote-SSH
 
 Open VSCode. Open the 'Extensions' panel on the left. Search for 'Remote - SSH' and install.
 
-Press <kbd>F1</kbd> to open the command Palette. Type 'ssh', then select 'Remote-SSH: Connect to Host...'. Input the server name you would like to connect and press Enter.
+Press <kbd>F1</kbd> to open the command palette. Type 'ssh', then select 'Remote-SSH: Connect to Host...'. Input the server name you would like to connect and press Enter.
 
 Wait for VSCode to be set up on the server. After it is finished, you can develop on the server using VSCode.
 
@@ -215,23 +215,11 @@ Wait for VSCode to be set up on the server. After it is finished, you can develo
 
 ### 3.1. Why JAX?
 
-TODO: Compare JAX, Tensorflow and PyTorch.
+The three popular deep learning libraries supported by [Hugging Face Transformers](https://github.com/huggingface/transformers) are [JAX](https://github.com/google/jax), [PyTorch](https://pytorch.org/) and [TensorFlow](https://www.tensorflow.org/).
 
-- [Tensorflow](Tensorflow) (officially supported by Google)
-- [PyTorch](https://pytorch.org/) (supports TPU via PyTorch XLA)
-- [JAX](https://github.com/google/jax) (latest and most suitable for TPU)
+As mentioned earlier, PyTorch is poorly supported on TPU. For Tensorflow and JAX, I regard JAX as the next generation and simplified version of Tensorflow. JAX is easier to use than Tensorflow.
 
-NumPy vs JAX:
-
-- [NumPy](https://numpy.org/) (CPU only)
-- [JAX](https://github.com/google/jax) (cross-platform)
-
-The JAX ecosystem:
-
-- [JAX](https://github.com/google/jax) (basis)
-- [Flax](https://github.com/google/flax) (neural network)
-- [DM Haiku](https://github.com/deepmind/dm-haiku) (neural network)
-- [Optax](https://github.com/deepmind/optax) (optimizer)
+JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number of mutually compatible libraries built on top of JAX. A comprehensive list of the JAX ecosystem can be found at [n2cholas/awesome-jax](https://github.com/n2cholas/awesome-jax).
 
 ### 3.2. Compute gradients with `jax.grad`
 
@@ -344,6 +332,8 @@ jax.tree_map(lambda x: x.shape, params)
 
 ### 5.1. What is `a[:, None]`?
 
+[`np.newaxis`](https://numpy.org/doc/stable/reference/constants.html#numpy.newaxis)
+
 ### 5.2. How to understand `np.einsum`?
 
 ## 6. Common Gotchas
@@ -409,7 +399,7 @@ See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
 
 ### 6.5. External IP of TPU machine will be reset occasionally
 
-As of 17 Feb 2022, the external IP addresses may change if there is a maintenance event. If this happens, you need to reconnect with the new IP addresses.
+As of 17 Feb 2022, the external IP address may change if there is a maintenance event. If this happens, you need to reconnect with the new IP address.
 
 ### 6.6. One TPU device can only be used by one process at a time
 
