@@ -15,7 +15,7 @@ Everything you want to know about Google Cloud TPUs
     * [2.3. Add public key to the server](#23-add-public-key-to-the-server)
     * [2.4. Basic configurations](#24-basic-configurations)
     * [2.4. How can I verify that the TPU is working?](#24-how-can-i-verify-that-the-tpu-is-working)
-    * [2.5. Development environment](#25-development-environment)
+    * [2.5. Set up development environment](#25-set-up-development-environment)
 * [3. JAX Basics](#3-jax-basics)
     * [3.1. Why JAX?](#31-why-jax)
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
@@ -171,7 +171,7 @@ a = np.array([1, 2, 3])
 print(a.device())  # should print TpuDevice
 ```
 
-### 2.5. Development environment
+### 2.5. Set up development environment
 
 TODO: Introduce oh-my-zsh, mosh, byobu, VSCode Remote-SSH.
 
@@ -209,7 +209,9 @@ The JAX ecosystem:
 
 ## 4. Best Practices
 
-### 4.1. Prefer GCP over Colab
+### 4.1. About TPU
+
+#### 4.1.1. Prefer Google Cloud Platform to Google Colab
 
 [Google Colab](https://colab.research.google.com/) only provides TPU v2-8 devices, while on [Google Cloud Platform](https://cloud.google.com/tpu) you can select TPU v2-8 and TPU v3-8.
 
@@ -227,11 +229,19 @@ devices = jax.devices()
 print(devices)  # should print TpuDevice
 ```
 
-### 4.2. Prefer TPU VM over TPU Nodes
+#### 4.1.2. Prefer TPU VM to TPU Nodes
 
 TPU VM is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU devices.
 
-### 4.3. Import convention
+#### 4.1.3. Share files across multiple TPU VM instances
+
+TPU VM instances in the same zone are connected with internal IPs, so you can create a shared file system using NFS.
+
+#### 4.1.4. Monitor TPU usage
+
+### 4.2. About JAX
+
+#### 4.2.1. Import convention
 
 You may see two different kind of import conventions. One is to import jax.numpy as np and import the original numpy as onp. Another one is to import jax.numpy as jnp and leave original numpy as np.
 
@@ -241,13 +251,9 @@ On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m
 
 TODO: Conclusion?
 
-### 4.4. Share files across multiple TPU VM instances
+#### 4.2.2. Manage random keys in JAX
 
-TPU VM instances in the same zone are connected with internal IPs, so you can create a shared file system using NFS.
-
-### 4.5. Manage random keys in JAX
-
-### 4.6. Serialize model parameters
+#### 4.2.3. Serialize model parameters
 
 Normally, the model parameters are represented by a nested dictionary like this:
 
@@ -267,7 +273,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-### 4.7. Convertion between NumPy array and JAX array
+#### 4.2.4. Convertion between NumPy array and JAX array
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -282,17 +288,17 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 4.8. Type annotation
+#### 4.2.5. Type annotation
 
 `np.ndarray`
 
-### 4.9. Check an array is a NumPy array or a JAX array
+#### 4.2.6. Check an array is either a NumPy array or a JAX array
 
 ```python
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
-### 4.10. Check the shapes of all parameters in a nested dictionary
+#### 4.2.7. Check the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
