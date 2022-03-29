@@ -18,8 +18,10 @@ Everything you want to know about Google Cloud TPUs
     * [2.5. Development environment](#25-development-environment)
 * [3. JAX Basics](#3-jax-basics)
     * [3.1. Why JAX?](#31-why-jax)
-    * [3.2. Compute gradient with jax.grad](#32-compute-gradient-with-jaxgrad)
+    * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
     * [3.3. Use optimizers from optax](#33-use-optimizers-from-optax)
+    * [3.4. Load training data to CPU, then send batches to TPU](#34-load-training-data-to-cpu-then-send-batches-to-tpu)
+    * [3.5. Integration with Hugging Face Transformers](#35-integration-with-hugging-face-transformers)
 * [4. Best Practices](#4-best-practices)
     * [4.1. Prefer GCP over Colab](#41-prefer-gcp-over-colab)
     * [4.2. Prefer TPU VM over TPU Nodes](#42-prefer-tpu-vm-over-tpu-nodes)
@@ -195,9 +197,15 @@ The JAX ecosystem:
 - [DM Haiku](https://github.com/deepmind/dm-haiku) (neural network)
 - [Optax](https://github.com/deepmind/optax) (optimizer)
 
-### 3.2. Compute gradient with `jax.grad`
+### 3.2. Compute gradients with `jax.grad`
 
 ### 3.3. Use optimizers from `optax`
+
+### 3.4. Load training data to CPU, then send batches to TPU
+
+### 3.5. Integration with Hugging Face Transformers
+
+[Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
 
 ## 4. Best Practices
 
@@ -225,11 +233,11 @@ TPU VM is the new architecture in which TPU devices are connected to the host VM
 
 ### 4.3. Import convention
 
-You may see two different kind of import conventions. One is to import `jax.numpy` as `np` and import the original numpy as `onp`. Another one is to import `jax.numpy` as `jnp` and leave original numpy as `np`.
+You may see two different kind of import conventions. One is to import jax.numpy as np and import the original numpy as onp. Another one is to import jax.numpy as jnp and leave original numpy as np.
 
-On 16 Jan 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as `onp`.
+On 16 Jan 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as onp.
 
-On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as `jnp` and to leave original numpy as `np`.
+On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as jnp and to leave original numpy as np.
 
 TODO: Conclusion?
 
@@ -257,7 +265,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 }
 ```
 
-You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [flax.serialization.msgpack_restore](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
+You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
 ### 4.7. Convertion between NumPy array and JAX array
 
