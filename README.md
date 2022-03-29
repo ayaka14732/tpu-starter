@@ -413,13 +413,13 @@ As of 17 Feb 2022, the external IP addresses may change if there is a maintenanc
 
 ### 6.6. One TPU device can only be used by one process at a time
 
-Unlike GPU, you cannot run two processes on the TPU at the same time. Otherwise you will get this error:
+Unlike GPU, you will get an error if you run two processes on TPU at a time:
 
 ```
 I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so already in use by another process. Run "$ sudo lsof -w /dev/accel0" to figure out which process is using the TPU. Not attempting to load libtpu.so in this process.
 ```
 
-Even if a TPU device has 8 cores and the first process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
+Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
 ### 6.7. There is no TPU counterpart of `nvidia-smi`
 
