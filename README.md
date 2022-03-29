@@ -16,10 +16,13 @@ Everything you want to know about Google Cloud TPUs
     * [2.4. Basic configurations](#24-basic-configurations)
     * [2.4. How can I verify that the TPU is working?](#24-how-can-i-verify-that-the-tpu-is-working)
     * [2.5. Set up development environment](#25-set-up-development-environment)
+        * [2.5.1. Install Oh My Zsh](#251-install-oh-my-zsh)
+        * [2.5.2. Set up Mosh and Byobu](#252-set-up-mosh-and-byobu)
+        * [2.5.3. Set up VSCode Remote-SSH](#253-set-up-vscode-remote-ssh)
 * [3. JAX Basics](#3-jax-basics)
     * [3.1. Why JAX?](#31-why-jax)
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
-    * [3.3. Use optimizers from optax](#33-use-optimizers-from-optax)
+    * [3.3. Use optimizers from Optax](#33-use-optimizers-from-optax)
     * [3.4. Load training data to CPU, then send batches to TPU](#34-load-training-data-to-cpu-then-send-batches-to-tpu)
     * [3.5. Integration with Hugging Face Transformers](#35-integration-with-hugging-face-transformers)
 * [4. Best Practices](#4-best-practices)
@@ -44,7 +47,7 @@ Everything you want to know about Google Cloud TPUs
     * [6.2. np.dot and torch.dot are different](#62-npdot-and-torchdot-are-different)
     * [6.3. np.std and torch.std are different](#63-npstd-and-torchstd-are-different)
     * [6.4. Computations on TPU are in low precision by default](#64-computations-on-tpu-are-in-low-precision-by-default)
-    * [6.5. External IP of TPU machine can be reset](#65-external-ip-of-tpu-machine-can-be-reset)
+    * [6.5. External IP of TPU machine will be reset occasionally](#65-external-ip-of-tpu-machine-will-be-reset-occasionally)
     * [6.6. One TPU device can only be used by one process at a time](#66-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
     * [6.7. There is no TPU counterpart of nvidia-smi](#67-there-is-no-tpu-counterpart-of-nvidia-smi)
 * [7. Community](#7-community)
@@ -176,7 +179,37 @@ print(a.device())  # should print TpuDevice
 
 ### 2.5. Set up development environment
 
-TODO: Introduce oh-my-zsh, mosh, byobu, VSCode Remote-SSH.
+#### 2.5.1. Install Oh My Zsh
+
+[Oh My Zsh](https://ohmyz.sh/) makes the terminal much easier to use.
+
+To install Oh My Zsh, run the following command:
+
+```sh
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+#### 2.5.2. Set up Mosh and Byobu
+
+If you connect to the server directly with SSH, there is a risk of loss of connection. If this happens, the training script you are running in the foreground will be terminated.
+
+[Mosh](https://mosh.org/) and [Byobu](https://www.byobu.org/) are two programs to solve this problem. Byobu will ensure that the script continues to run on the server even if the connection is lost, while Mosh guarantees that the connection will not be lost. 
+
+Install [Mosh](https://mosh.org/#getting) on your local device, then log in into the server with:
+
+```sh
+mosh tpu1 -- byobu
+```
+
+You can learn more about Byobu from this video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
+
+#### 2.5.3. Set up VSCode Remote-SSH
+
+Open VSCode. Open the 'Extensions' panel on the left. Search for 'Remote - SSH' and install.
+
+Press <kbd>F1</kbd> to open the command Palette. Type 'ssh', then select 'Remote-SSH: Connect to Host...'. Input the server name you would like to connect and press Enter.
+
+Wait for VSCode to be set up on the server. After it is finished, you can develop on the server using VSCode.
 
 ## 3. JAX Basics
 
@@ -202,7 +235,7 @@ The JAX ecosystem:
 
 ### 3.2. Compute gradients with `jax.grad`
 
-### 3.3. Use optimizers from `optax`
+### 3.3. Use optimizers from Optax
 
 ### 3.4. Load training data to CPU, then send batches to TPU
 
@@ -374,7 +407,7 @@ jax.config.update('jax_default_matmul_precision', jax.lax.Precision.HIGHEST)
 
 See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
 
-### 6.5. External IP of TPU machine can be reset
+### 6.5. External IP of TPU machine will be reset occasionally
 
 As of 17 Feb 2022, the external IP addresses may change if there is a maintenance event. If this happens, you need to reconnect with the new IP addresses.
 
