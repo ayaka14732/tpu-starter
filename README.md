@@ -38,12 +38,12 @@ Everything you want to know about Google Cloud TPUs
     * [5.2. How to understand np.einsum?](#52-how-to-understand-npeinsum)
 * [6. Common Gotchas](#6-common-gotchas)
     * [6.1. Indexing an array with an array](#61-indexing-an-array-with-an-array)
-    * [6.2. np.dot and torch.dot is different!](#62-npdot-and-torchdot-is-different)
-    * [6.3. np.std and torch.std is different!](#63-npstd-and-torchstd-is-different)
-    * [6.4. TPU cannot do simple arithmetic!](#64-tpu-cannot-do-simple-arithmetic)
+    * [6.2. np.dot and torch.dot are different](#62-npdot-and-torchdot-are-different)
+    * [6.3. np.std and torch.std are different](#63-npstd-and-torchstd-are-different)
+    * [6.4. Computations on TPU are in low precision by default](#64-computations-on-tpu-are-in-low-precision-by-default)
     * [6.5. External IP of TPU machine can be reset](#65-external-ip-of-tpu-machine-can-be-reset)
     * [6.6. One TPU device can only be used by one process at a time](#66-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
-    * [6.7. There is no equivalent for nvidia-smi](#67-there-is-no-equivalent-for-nvidia-smi)
+    * [6.7. There is no TPU counterpart of nvidia-smi](#67-there-is-no-tpu-counterpart-of-nvidia-smi)
 * [7. Community](#7-community)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
@@ -326,7 +326,7 @@ a[b_]  # error: index 3 is out of bounds for axis 1 with size 2
 
 Generally speaking, JAX supports NumPy arrays, but NumPy does not support JAX arrays.
 
-### 6.2. `np.dot` and `torch.dot` is different!
+### 6.2. `np.dot` and `torch.dot` are different
 
 ```python
 import numpy as onp
@@ -341,7 +341,7 @@ b_ = torch.from_numpy(b)
 torch.dot(a_, b_)  # error: 1D tensors expected, but got 3D and 3D tensors
 ```
 
-### 6.3. `np.std` and `torch.std` is different!
+### 6.3. `np.std` and `torch.std` are different
 
 ```python
 import torch
@@ -354,7 +354,7 @@ print(x.numpy().std(-1))  # [1.]
 
 This is because in [`np.std`](https://numpy.org/doc/stable/reference/generated/numpy.std.html) the denominator is _n_, while in [`torch.std`](https://pytorch.org/docs/stable/generated/torch.std.html) it is _n_-1. See [pytorch/pytorch#1854](https://github.com/pytorch/pytorch/issues/1854) for details.
 
-### 6.4. TPU cannot do simple arithmetic!
+### 6.4. Computations on TPU are in low precision by default
 
 You need to add this line at the top of the script:
 
@@ -379,10 +379,10 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and the first process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-### 6.7. There is no equivalent for `nvidia-smi`
+### 6.7. There is no TPU counterpart of `nvidia-smi`
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
 
 ## 7. Community
 
-As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join my chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram.
+As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join my chat group [@cloudtpu](https://t.me/cloudtpu) on Telegram. [Shawn's Discord server](https://github.com/shawwn/tpunicorn#contact) also has a channel for TPU.
