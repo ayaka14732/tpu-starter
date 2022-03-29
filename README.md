@@ -123,10 +123,8 @@ pip install -r requirements.txt
 
 ```python
 import jax.numpy as np
-
 a = np.array([1, 2, 3])
-
-a.device()  # should print TpuDevice
+print(a.device())  # should print TpuDevice
 ```
 
 ### 2.5. Development environment
@@ -159,9 +157,29 @@ NumPy vs JAX:
 
 ### 4.1. Prefer GCP over Colab
 
+[Google Colab](https://colab.research.google.com/) only provides TPU v2-8 devices, while on [Google Cloud Platform](https://cloud.google.com/tpu) you can select TPU v2-8 and TPU v3-8.
+
+Besides, on Google Colab you can only use TPU through the Jupyter Notebook interface. Even if you [log in into the Colab server via SSH](https://ayaka.shn.hk/colab/), it is a docker image and you don't have root access. On Google Cloud Platform, however, you have full access to the TPU VM.
+
+If you really want to use TPU on Google Colab, you need to run [the following script](01-basics/setup_colab_tpu.py) to set up TPU:
+
+```python
+import jax
+from jax.tools.colab_tpu import setup_tpu
+
+setup_tpu()
+
+devices = jax.devices()
+print(devices)  # should print TpuDevice
+```
+
 ### 4.2. Prefer TPU VM over TPU Nodes
 
+TPU VM is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU devices.
+
 ### 4.3. Import convention
+
+You may see two different kind of import conventions. One is to import `jax.numpy` as `np` and import the original numpy as `onp`. Another one is to import `jax.numpy` as `jnp` and leave original numpy as `np`.
 
 On 16 January 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as `onp`.
 
@@ -171,19 +189,44 @@ TODO: Conclusion?
 
 ### 4.4. Share files across multiple TPU VM instances
 
-TODO: Internal IP, maybe sshfs?
+TPU VM instances in the same zone are connected with internal IPs, so you can create a shared file system using NFS.
 
 ### 4.5. Manage random keys in JAX
 
 ### 4.6. Serialize model parameters
 
-Normally, the model parameters are represented by a nested dictionary.
+Normally, the model parameters are represented by a nested dictionary like this:
 
-See [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize).
+```json
+{
+    "embedding": DeviceArray,
+    "ff1": {
+        "kernel": DeviceArray,
+        "bias": DeviceArray
+    },
+    "ff2": {
+        "kernel": DeviceArray,
+        "bias": DeviceArray
+    }
+}
+```
+
+You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [flax.serialization.msgpack_restore](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
 ### 4.7. Convertion between NumPy array and JAX array
 
-`np.asarray`
+Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
+
+```python
+import jax.numpy as np
+import numpy as onp
+
+a = np.array([1, 2, 3])  # JAX array
+b = onp.asarray(a)  # converted to NumPy array
+
+c = onp.array([1, 2, 3])  # NumPy array
+d = np.asarray(c)  # converted to JAX array
+```
 
 ### 4.8. Type annotation
 
@@ -240,7 +283,14 @@ torch.dot(a_, b_)  # error: 1D tensors expected, but got 3D and 3D tensors
 
 ### 6.3. TPU cannot do simple arithmetic!
 
-[google/jax#9973](https://github.com/google/jax/issues/9973).
+You need to add this line at the top of the script:
+
+```python
+# https://github.com/google/jax/issues/9973#issuecomment-1073579382
+jax.config.update('jax_default_matmul_precision', jax.lax.Precision.HIGHEST)
+```
+
+See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
 
 ## 7. Community
 
