@@ -219,7 +219,7 @@ Install [Mosh](https://mosh.org/#getting) on your local device, then log in into
 mosh tpu1 -- byobu
 ```
 
-You can learn more about Byobu from this video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
+You can learn more about Byobu from the video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
 
 #### 2.6.3. Set up VSCode Remote-SSH
 
@@ -277,7 +277,7 @@ When you are creating a TPU instance, you need to choose between TPU VM and TPU 
 
 #### 4.1.3. Share files across multiple TPU VM instances
 
-TPU VM instances in the same zone are connected with internal IPs, so you can create a shared file system using NFS.
+TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
 #### 4.1.4. Monitor TPU usage
 
