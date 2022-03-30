@@ -4,7 +4,7 @@ Everything you want to know about Google Cloud TPUs
 
 * [1. Introduction](#1-introduction)
     * [1.1. Why TPU?](#11-why-tpu)
-    * [1.2. TPU is so good, why isn't it popular?](#12-tpu-is-so-good-why-isnt-it-popular)
+    * [1.2. TPU is so good, why haven't I seen many people using it?](#12-tpu-is-so-good-why-havent-i-seen-many-people-using-it)
     * [1.3. I know TPU is good now. Can I touch a real TPU?](#13-i-know-tpu-is-good-now-can-i-touch-a-real-tpu)
     * [1.4. How do I get access to TPU?](#14-how-do-i-get-access-to-tpu)
     * [1.5. What does it mean to create a TPU instance? What do I actually get?](#15-what-does-it-mean-to-create-a-tpu-instance-what-do-i-actually-get)
@@ -14,6 +14,11 @@ Everything you want to know about Google Cloud TPUs
     * [2.2. Create a TPU instance](#22-create-a-tpu-instance)
     * [2.3. Add public key to the server](#23-add-public-key-to-the-server)
     * [2.4. Basic configurations](#24-basic-configurations)
+        * [2.4.1. Install common packages](#241-install-common-packages)
+        * [2.4.2. Install Python 3.10](#242-install-python-310)
+        * [2.4.3. Create a virtual environment](#243-create-a-virtual-environment)
+        * [2.4.4. Install JAX with TPU support](#244-install-jax-with-tpu-support)
+        * [2.4.5. Install common libraries](#245-install-common-libraries)
     * [2.5. How can I verify that the TPU is working?](#25-how-can-i-verify-that-the-tpu-is-working)
     * [2.6. Set up development environment](#26-set-up-development-environment)
         * [2.6.1. Install Oh My Zsh](#261-install-oh-my-zsh)
@@ -28,7 +33,7 @@ Everything you want to know about Google Cloud TPUs
 * [4. Best Practices](#4-best-practices)
     * [4.1. About TPU](#41-about-tpu)
         * [4.1.1. Prefer Google Cloud Platform to Google Colab](#411-prefer-google-cloud-platform-to-google-colab)
-        * [4.1.2. Prefer TPU VM to TPU Nodes](#412-prefer-tpu-vm-to-tpu-nodes)
+        * [4.1.2. Prefer TPU VM to TPU node](#412-prefer-tpu-vm-to-tpu-node)
         * [4.1.3. Share files across multiple TPU VM instances](#413-share-files-across-multiple-tpu-vm-instances)
         * [4.1.4. Monitor TPU usage](#414-monitor-tpu-usage)
     * [4.2. About JAX](#42-about-jax)
@@ -39,12 +44,12 @@ Everything you want to know about Google Cloud TPUs
         * [4.2.5. Type annotation](#425-type-annotation)
         * [4.2.6. Check an array is either a NumPy array or a JAX array](#426-check-an-array-is-either-a-numpy-array-or-a-jax-array)
         * [4.2.7. Check the shapes of all parameters in a nested dictionary](#427-check-the-shapes-of-all-parameters-in-a-nested-dictionary)
-* [5. Confusing syntax](#5-confusing-syntax)
+* [5. Confusing Syntax](#5-confusing-syntax)
     * [5.1. What is a[:, None]?](#51-what-is-a-none)
     * [5.2. How to understand np.einsum?](#52-how-to-understand-npeinsum)
 * [6. Common Gotchas](#6-common-gotchas)
     * [6.1. About TPU](#61-about-tpu)
-        * [6.1.1. External IP of TPU machine will be reset occasionally](#611-external-ip-of-tpu-machine-will-be-reset-occasionally)
+        * [6.1.1. External IP of TPU machine changes occasionally](#611-external-ip-of-tpu-machine-changes-occasionally)
         * [6.1.2. One TPU device can only be used by one process at a time](#612-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
         * [6.1.3. There is no TPU counterpart of nvidia-smi](#613-there-is-no-tpu-counterpart-of-nvidia-smi)
     * [6.2. About JAX](#62-about-jax)
@@ -70,7 +75,7 @@ Generally speaking, TPU is faster. There is a [performance comparison](https://g
 
 Moreover, for researchers, [the TRC program](https://sites.research.google/trc/about/) provides free TPU. As far as I know, this is the best computing resource available for research. For more details on the TRC program, please see below.
 
-### 1.2. TPU is so good, why isn't it popular?
+### 1.2. TPU is so good, why haven't I seen many people using it?
 
 If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
 
@@ -100,13 +105,15 @@ You can learn more about the TRC program on its [homepage](https://sites.researc
 
 ### 2.1. Modify VPC firewall
 
+You need to loosen the restrictions of the firewall so that Mosh and other programs will not be blocked.
+
 Open the [Firewall management page](https://console.cloud.google.com/networking/firewalls/list) in VPC network.
 
 Click the button to create a new firewall rule.
 
 ![](assets/2.png)
 
-Set name to allow-all, targets to 'All instances in the network', source filter to 0.0.0.0/0, protocols and ports to 'Allow all', and then click 'Create'.
+Set name to 'allow-all', targets to 'All instances in the network', source filter to 0.0.0.0/0, protocols and ports to 'Allow all', and then click 'Create'.
 
 ### 2.2. Create a TPU instance
 
@@ -136,7 +143,7 @@ After logging in, add your public key to `~/.ssh/authorized_keys`.
 
 ### 2.4. Basic configurations
 
-Install packages:
+#### 2.4.1. Install common packages
 
 ```sh
 sudo apt update
@@ -145,19 +152,26 @@ sudo apt install -y neofetch zsh mosh byobu
 sudo reboot
 ```
 
-Install Python 3.10:
+#### 2.4.2. Install Python 3.10
+
+Unfortunately, [Python shipped with Ubuntu 20.04 LTS is Python 3.8](https://wiki.ubuntu.com/FocalFossa/ReleaseNotes#Python3_by_default), so you need to install Python 3.10 manually.
 
 ```sh
 sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install -y python3.10 python3.10-distutils python3.10-dev
 curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.10
+```
+
+#### 2.4.3. Create a virtual environment
+
+```sh
 python3.10 -m pip install virtualenv
 python3.10 -m virtualenv ~/.venv310
 . ~/.venv310/bin/activate
 ```
 
-Install JAX with TPU support:
+#### 2.4.4. Install JAX with TPU support
 
 ```sh
 pip install -U pip
@@ -165,7 +179,9 @@ pip install -U wheel
 pip install "jax[tpu]==0.3.4" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
-Install common packages and libraries:
+#### 2.4.5. Install common libraries
+
+Clone this repository. In the root directory of this repository, run:
 
 ```sh
 pip install -r requirements.txt
@@ -255,9 +271,9 @@ devices = jax.devices()
 print(devices)  # should print TpuDevice
 ```
 
-#### 4.1.2. Prefer TPU VM to TPU Nodes
+#### 4.1.2. Prefer TPU VM to TPU node
 
-TPU VM is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU devices.
+When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
 #### 4.1.3. Share files across multiple TPU VM instances
 
@@ -330,7 +346,7 @@ isinstance(a, (np.ndarray, onp.ndarray))
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-## 5. Confusing syntax
+## 5. Confusing Syntax
 
 ### 5.1. What is `a[:, None]`?
 
@@ -342,7 +358,7 @@ jax.tree_map(lambda x: x.shape, params)
 
 ### 6.1. About TPU
 
-#### 6.1.1. External IP of TPU machine will be reset occasionally
+#### 6.1.1. External IP of TPU machine changes occasionally
 
 As of 17 Feb 2022, the external IP address may change if there is a maintenance event. If this happens, you need to reconnect with the new IP address.
 
