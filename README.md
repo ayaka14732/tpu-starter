@@ -1,6 +1,6 @@
 # TPU Starter
 
-Everything you want to know about Google Cloud TPUs
+Everything you want to know about Google Cloud TPU
 
 * [1. Introduction](#1-introduction)
     * [1.1. Why TPU?](#11-why-tpu)
@@ -67,9 +67,7 @@ Everything you want to know about Google Cloud TPUs
 
 **TL;DR**: TPU is to GPU as GPU is to CPU.
 
-TPU is a special hardware designed specifically for machine learning, so it is more cost-effective to use TPU than GPU.
-
-Generally speaking, TPU is faster. There is a [performance comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
+TPU is a special hardware designed specifically for machine learning. There is a [performance comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
 
 ![](assets/5.png)
 
@@ -94,6 +92,8 @@ You can also use [Google Colab](https://colab.research.google.com/), but I don't
 ### 1.5. What does it mean to create a TPU instance? What do I actually get?
 
 After creating a TPU v3-8 instance on [Google Cloud Platform](https://cloud.google.com/tpu), you will get a Ubuntu 20.04 cloud server with sudo access, 96 cores, 335 GiB memory and one TPU device with 8 cores (128 GiB TPU memory in total).
+
+![](assets/0.png)
 
 This is similar to the way we use GPU. In most cases, when you use a GPU, you use a Linux server that connects with a GPU. When you use a TPU, you use a Linux server that connects with a TPU.
 
