@@ -62,6 +62,8 @@ Everything you want to know about Google Cloud TPU
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
+This project is inspired by [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-faq), a community-maintained knowledge base of another Google Cloud product.
+
 ## 1. Introduction
 
 ### 1.1. Why TPU?
