@@ -29,21 +29,23 @@ Everything you want to know about Google Cloud TPU
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
     * [3.3. Use optimizers from Optax](#33-use-optimizers-from-optax)
     * [3.4. Load training data to CPU, then send batches to TPU](#34-load-training-data-to-cpu-then-send-batches-to-tpu)
-    * [3.5. Integration with Hugging Face Transformers](#35-integration-with-hugging-face-transformers)
+    * [3.5. Data parallelism on 8 TPU cores](#35-data-parallelism-on-8-tpu-cores)
+    * [3.6. Integration with Hugging Face Transformers](#36-integration-with-hugging-face-transformers)
 * [4. Best Practices](#4-best-practices)
     * [4.1. About TPU](#41-about-tpu)
         * [4.1.1. Prefer Google Cloud Platform to Google Colab](#411-prefer-google-cloud-platform-to-google-colab)
         * [4.1.2. Prefer TPU VM to TPU node](#412-prefer-tpu-vm-to-tpu-node)
-        * [4.1.3. Share files across multiple TPU VM instances](#413-share-files-across-multiple-tpu-vm-instances)
-        * [4.1.4. Monitor TPU usage](#414-monitor-tpu-usage)
+        * [4.1.3. Run Jupyter Notebook on TPU VM](#413-run-jupyter-notebook-on-tpu-vm)
+        * [4.1.4. Share files across multiple TPU VM instances](#414-share-files-across-multiple-tpu-vm-instances)
+        * [4.1.5. Monitor TPU usage](#415-monitor-tpu-usage)
     * [4.2. About JAX](#42-about-jax)
         * [4.2.1. Import convention](#421-import-convention)
         * [4.2.2. Manage random keys in JAX](#422-manage-random-keys-in-jax)
         * [4.2.3. Serialize model parameters](#423-serialize-model-parameters)
         * [4.2.4. Convertion between NumPy array and JAX array](#424-convertion-between-numpy-array-and-jax-array)
         * [4.2.5. Type annotation](#425-type-annotation)
-        * [4.2.6. Check an array is either a NumPy array or a JAX array](#426-check-an-array-is-either-a-numpy-array-or-a-jax-array)
-        * [4.2.7. Check the shapes of all parameters in a nested dictionary](#427-check-the-shapes-of-all-parameters-in-a-nested-dictionary)
+        * [4.2.6. Check if an array is either a NumPy array or a JAX array](#426-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
+        * [4.2.7. Get the shapes of all parameters in a nested dictionary](#427-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
 * [5. Confusing Syntax](#5-confusing-syntax)
     * [5.1. What is a[:, None]?](#51-what-is-a-none)
     * [5.2. How to understand np.einsum?](#52-how-to-understand-npeinsum)
@@ -150,7 +152,7 @@ After logging in, add your public key to `~/.ssh/authorized_keys`.
 
 ```sh
 sudo apt update
-sudo apt upgrade
+sudo apt upgrade -y
 sudo apt install -y neofetch zsh mosh byobu
 sudo reboot
 ```
@@ -232,6 +234,8 @@ Press <kbd>F1</kbd> to open the command palette. Type 'ssh', then select 'Remote
 
 Wait for VSCode to be set up on the server. After it is finished, you can develop on the server using VSCode.
 
+![](assets/3.png)
+
 ## 3. JAX Basics
 
 ### 3.1. Why JAX?
@@ -248,7 +252,11 @@ JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number o
 
 ### 3.4. Load training data to CPU, then send batches to TPU
 
-### 3.5. Integration with Hugging Face Transformers
+### 3.5. Data parallelism on 8 TPU cores
+
+<https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>
+
+### 3.6. Integration with Hugging Face Transformers
 
 [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
 
@@ -278,11 +286,17 @@ print(devices)  # should print TpuDevice
 
 When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
-#### 4.1.3. Share files across multiple TPU VM instances
+#### 4.1.3. Run Jupyter Notebook on TPU VM
+
+After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
+
+Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
+
+#### 4.1.4. Share files across multiple TPU VM instances
 
 TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
-#### 4.1.4. Monitor TPU usage
+#### 4.1.5. Monitor TPU usage
 
 ### 4.2. About JAX
 
@@ -337,13 +351,13 @@ d = np.asarray(c)  # converted to JAX array
 
 `np.ndarray`
 
-#### 4.2.6. Check an array is either a NumPy array or a JAX array
+#### 4.2.6. Check if an array is either a NumPy array or a JAX array
 
 ```python
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
-#### 4.2.7. Check the shapes of all parameters in a nested dictionary
+#### 4.2.7. Get the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
