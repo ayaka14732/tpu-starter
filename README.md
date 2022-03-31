@@ -51,7 +51,8 @@ Everything you want to know about Google Cloud TPU
     * [6.1. About TPU](#61-about-tpu)
         * [6.1.1. External IP of TPU machine changes occasionally](#611-external-ip-of-tpu-machine-changes-occasionally)
         * [6.1.2. One TPU device can only be used by one process at a time](#612-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
-        * [6.1.3. There is no TPU counterpart of nvidia-smi](#613-there-is-no-tpu-counterpart-of-nvidia-smi)
+        * [6.1.3. TCMalloc breaks several programs](#613-tcmalloc-breaks-several-programs)
+        * [6.1.4. There is no TPU counterpart of nvidia-smi](#614-there-is-no-tpu-counterpart-of-nvidia-smi)
     * [6.2. About JAX](#62-about-jax)
         * [6.2.1. Indexing an array with an array](#621-indexing-an-array-with-an-array)
         * [6.2.2. np.dot and torch.dot are different](#622-npdot-and-torchdot-are-different)
@@ -372,7 +373,31 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-#### 6.1.3. There is no TPU counterpart of `nvidia-smi`
+#### 6.1.3. TCMalloc breaks several programs
+
+[TCMalloc](https://github.com/google/tcmalloc) is Google's customized memory allocation library. On TPU VM, `LD_PRELOAD` is set to use TCMalloc by default:
+
+```sh
+$ echo LD_PRELOAD
+/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4
+```
+
+However, using TCMalloc in this manner may break several programs like gsutil:
+
+```sh
+$ gsutil --help
+/snap/google-cloud-sdk/232/platform/bundledpythonunix/bin/python3: /snap/google-cloud-sdk/232/platform/bundledpythonunix/bin/../../../lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4)
+```
+
+The [homepage of TCMalloc](http://goog-perftools.sourceforge.net/doc/tcmalloc.html) also indicates that `LD_PRELOAD` is tricky and this mode of usage is not recommended.
+
+If you encounter problems related to TCMalloc, you can disable it in the current shell using the command:
+
+```sh
+unset LD_PRELOAD
+```
+
+#### 6.1.4. There is no TPU counterpart of `nvidia-smi`
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
 
