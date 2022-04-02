@@ -27,10 +27,11 @@ Everything you want to know about Google Cloud TPU
 * [3. JAX Basics](#3-jax-basics)
     * [3.1. Why JAX?](#31-why-jax)
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
-    * [3.3. Use optimizers from Optax](#33-use-optimizers-from-optax)
-    * [3.4. Load training data to CPU, then send batches to TPU](#34-load-training-data-to-cpu-then-send-batches-to-tpu)
-    * [3.5. Data parallelism on 8 TPU cores](#35-data-parallelism-on-8-tpu-cores)
-    * [3.6. Integration with Hugging Face Transformers](#36-integration-with-hugging-face-transformers)
+    * [3.3. Load training data to CPU, then send batches to TPU](#33-load-training-data-to-cpu-then-send-batches-to-tpu)
+    * [3.4. Data parallelism on 8 TPU cores](#34-data-parallelism-on-8-tpu-cores)
+    * [3.5. Use optimizers from Optax](#35-use-optimizers-from-optax)
+    * [3.6. Freeze certain model parameters](#36-freeze-certain-model-parameters)
+    * [3.7. Integration with Hugging Face Transformers](#37-integration-with-hugging-face-transformers)
 * [4. Best Practices](#4-best-practices)
     * [4.1. About TPU](#41-about-tpu)
         * [4.1.1. Prefer Google Cloud Platform to Google Colab](#411-prefer-google-cloud-platform-to-google-colab)
@@ -248,15 +249,40 @@ JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number o
 
 ### 3.2. Compute gradients with `jax.grad`
 
-### 3.3. Use optimizers from Optax
+### 3.3. Load training data to CPU, then send batches to TPU
 
-### 3.4. Load training data to CPU, then send batches to TPU
-
-### 3.5. Data parallelism on 8 TPU cores
+### 3.4. Data parallelism on 8 TPU cores
 
 <https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>
 
-### 3.6. Integration with Hugging Face Transformers
+### 3.5. Use optimizers from Optax
+
+### 3.6. Freeze certain model parameters
+
+```python
+params = {
+  'a': { 'x1': ..., 'x2': ... },
+  'b': { 'x1': ..., 'x2': ... },
+}
+
+param_labels = {
+  'a': { 'x1': 'freeze', 'x2': 'train' },
+  'b': 'train',
+}
+
+optimizer_scheme = {
+  'train': optax.adam(...),
+  'freeze': optax.set_to_zero(),
+}
+
+optimizer = optax.multi_transform(optimizer_scheme, param_labels)
+```
+
+<https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform>
+
+<https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx?usp=sharing#scrollTo=O584e8c79Ps7>
+
+### 3.7. Integration with Hugging Face Transformers
 
 [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
 
