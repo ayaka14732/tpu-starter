@@ -77,7 +77,7 @@ TPU is a special hardware designed specifically for machine learning. There is a
 
 ![](assets/5.png)
 
-Moreover, for researchers, [the TRC program](https://sites.research.google/trc/about/) provides free TPU. As far as I know, this is the best computing resource available for research. For more details on the TRC program, please see below.
+Moreover, for researchers, [the TRC program](https://sites.research.google/trc/about/) provides free TPU. As far as I know, this is the best computing resource available for research. For more details on the TRC program, see below.
 
 ### 1.2. TPU is so good, why haven't I seen many people using it?
 
@@ -91,7 +91,7 @@ Unfortunately, in most cases you cannot touch a TPU physically. TPU is only avai
 
 ### 1.4. How do I get access to TPU?
 
-You can create TPU instances on [Google Cloud Platform](https://cloud.google.com/tpu). For more information on setting up TPU, please see below.
+You can create TPU instances on [Google Cloud Platform](https://cloud.google.com/tpu). For more information on setting up TPU, see below.
 
 You can also use [Google Colab](https://colab.research.google.com/), but I don't recommend this way. Moreover, if you get free access to TPU from the [TRC program](https://sites.research.google/trc/about/), you will be using Google Cloud Platform, not Google Colab.
 
@@ -259,28 +259,28 @@ JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number o
 
 ### 3.6. Freeze certain model parameters
 
+Use [`optax.set_to_zero`](https://optax.readthedocs.io/en/latest/api.html#optax.set_to_zero) together with [`optax.multi_transform`](https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform).
+
 ```python
 params = {
-  'a': { 'x1': ..., 'x2': ... },
-  'b': { 'x1': ..., 'x2': ... },
+    'a': { 'x1': ..., 'x2': ... },
+    'b': { 'x1': ..., 'x2': ... },
 }
 
 param_labels = {
-  'a': { 'x1': 'freeze', 'x2': 'train' },
-  'b': 'train',
+    'a': { 'x1': 'freeze', 'x2': 'train' },
+    'b': 'train',
 }
 
 optimizer_scheme = {
-  'train': optax.adam(...),
-  'freeze': optax.set_to_zero(),
+    'train': optax.adam(...),
+    'freeze': optax.set_to_zero(),
 }
 
 optimizer = optax.multi_transform(optimizer_scheme, param_labels)
 ```
 
-<https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform>
-
-<https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx?usp=sharing#scrollTo=O584e8c79Ps7>
+See [Freeze Parameters Example](https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx) for details.
 
 ### 3.7. Integration with Hugging Face Transformers
 
