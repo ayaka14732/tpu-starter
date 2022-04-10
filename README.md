@@ -16,9 +16,10 @@ Everything you want to know about Google Cloud TPU
     * [2.4. Basic configurations](#24-basic-configurations)
         * [2.4.1. Install common packages](#241-install-common-packages)
         * [2.4.2. Install Python 3.10](#242-install-python-310)
-        * [2.4.3. Create a virtual environment](#243-create-a-virtual-environment)
+        * [2.4.3. Create a Virtualenv](#243-create-a-virtualenv)
         * [2.4.4. Install JAX with TPU support](#244-install-jax-with-tpu-support)
-        * [2.4.5. Install common libraries](#245-install-common-libraries)
+        * [2.4.5. Install Tensorflow and Tensorboard Plugin Profile (for JAX program profiling)](#245-install-tensorflow-and-tensorboard-plugin-profile-for-jax-program-profiling)
+        * [2.4.6. Install common libraries](#246-install-common-libraries)
     * [2.5. How can I verify that the TPU is working?](#25-how-can-i-verify-that-the-tpu-is-working)
     * [2.6. Set up development environment](#26-set-up-development-environment)
         * [2.6.1. Install Oh My Zsh](#261-install-oh-my-zsh)
@@ -29,6 +30,9 @@ Everything you want to know about Google Cloud TPU
     * [3.2. Compute gradients with jax.grad](#32-compute-gradients-with-jaxgrad)
     * [3.3. Load training data to CPU, then send batches to TPU](#33-load-training-data-to-cpu-then-send-batches-to-tpu)
     * [3.4. Data parallelism on 8 TPU cores](#34-data-parallelism-on-8-tpu-cores)
+        * [3.4.1. Basics of jax.pmap](#341-basics-of-jaxpmap)
+        * [3.4.2. What if I want to have randomness in the update function?](#342-what-if-i-want-to-have-randomness-in-the-update-function)
+        * [3.4.3. What if I want to use optax optimizers in the update function?](#343-what-if-i-want-to-use-optax-optimizers-in-the-update-function)
     * [3.5. Use optimizers from Optax](#35-use-optimizers-from-optax)
     * [3.6. Freeze certain model parameters](#36-freeze-certain-model-parameters)
     * [3.7. Integration with Hugging Face Transformers](#37-integration-with-hugging-face-transformers)
@@ -39,6 +43,7 @@ Everything you want to know about Google Cloud TPU
         * [4.1.3. Run Jupyter Notebook on TPU VM](#413-run-jupyter-notebook-on-tpu-vm)
         * [4.1.4. Share files across multiple TPU VM instances](#414-share-files-across-multiple-tpu-vm-instances)
         * [4.1.5. Monitor TPU usage](#415-monitor-tpu-usage)
+        * [4.1.6. Start a server on TPU VM](#416-start-a-server-on-tpu-vm)
     * [4.2. About JAX](#42-about-jax)
         * [4.2.1. Import convention](#421-import-convention)
         * [4.2.2. Manage random keys in JAX](#422-manage-random-keys-in-jax)
@@ -61,6 +66,7 @@ Everything you want to know about Google Cloud TPU
         * [6.2.2. np.dot and torch.dot are different](#622-npdot-and-torchdot-are-different)
         * [6.2.3. np.std and torch.std are different](#623-npstd-and-torchstd-are-different)
         * [6.2.4. Computations on TPU are in low precision by default](#624-computations-on-tpu-are-in-low-precision-by-default)
+        * [6.2.5. Weight matrix of linear layer is transposed in PyTorch](#625-weight-matrix-of-linear-layer-is-transposed-in-pytorch)
 * [7. Community](#7-community)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
@@ -154,7 +160,7 @@ After logging in, add your public key to `~/.ssh/authorized_keys`.
 ```sh
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y neofetch zsh mosh byobu
+sudo apt install -y golang neofetch zsh mosh byobu
 sudo reboot
 ```
 
@@ -169,7 +175,7 @@ sudo apt install -y python3.10 python3.10-distutils python3.10-dev
 curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.10
 ```
 
-#### 2.4.3. Create a virtual environment
+#### 2.4.3. Create a Virtualenv
 
 ```sh
 python3.10 -m pip install virtualenv
@@ -185,7 +191,21 @@ pip install -U wheel
 pip install "jax[tpu]==0.3.4" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
-#### 2.4.5. Install common libraries
+#### 2.4.5. Install Tensorflow and Tensorboard Plugin Profile (for JAX program profiling)
+
+Although we are using JAX, we need to install Tensorflow as well to make `jax.profiler` work. Otherwise you will get an error:
+
+```
+E external/org_tensorflow/tensorflow/python/profiler/internal/python_hooks.cc:369] Can't import tensorflow.python.profiler.trace
+```
+
+You cannot install Tensorflow in the regular way because it is not built with TPU support.
+
+TODO: Add a installation method.
+
+See [gist](https://gist.github.com/ayaka14732/a22234f394d60a28545f76cff23397c0).
+
+#### 2.4.6. Install common libraries
 
 Clone this repository. In the root directory of this repository, run:
 
@@ -195,11 +215,25 @@ pip install -r requirements.txt
 
 ### 2.5. How can I verify that the TPU is working?
 
-```python
-import jax.numpy as np
-a = np.array([1, 2, 3])
-print(a.device())  # should print TpuDevice
+Run this command:
+
+```sh
+python3 -c 'import jax; print(jax.devices())'  # should print TpuDevice
 ```
+
+Note that we are using `python3` instead of `python` here, so the command also works even if you haven't source Virtualenv.
+
+You can also run this command to link `python` to `python3` by default, but I do not recommend it:
+
+```sh
+sudo apt install -y python-is-python3
+```
+
+This is because we should always use a Virtualenv to run our projects. When the `python` command is Python 2, if we forget to source Virtualenv, in most cases the command will fail, and this will remind us to source Virtualenv.
+
+TODO: If TPU is not working...
+
+See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>
 
 ### 2.6. Set up development environment
 
@@ -253,7 +287,49 @@ JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number o
 
 ### 3.4. Data parallelism on 8 TPU cores
 
-<https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>
+#### 3.4.1. Basics of `jax.pmap`
+
+There are three key points here.
+
+1\. The parameters should be replicated across devices
+
+```python
+replicated_params = jax.device_put_replicated(params, jax.devices())
+```
+
+2\. Decorate the function with `jax.pmap`
+
+```
+@partial(jax.pmap, axis_name='num_devices')
+```
+
+3\. In the function, use `jax.lax.pmean` to calculate the mean value across devices
+
+```python
+delta = jax.lax.pmean(delta, axis_name='num_devices')  # calculate mean across devices
+```
+
+See [01-basics/test_pmap.py](01-basics/test_pmap.py) for a complete working example.
+
+See also <https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>.
+
+#### 3.4.2. What if I want to have randomness in the update function?
+
+```python
+key, subkey = (lambda keys: (keys[0], keys[1:]))(rand.split(key, num=9))
+```
+
+Note that you cannot use the regular way to split the keys:
+
+```python
+key, *subkey = rand.split(key, num=9)
+```
+
+Because in this way, `subkey` is a list rather than an array.
+
+#### 3.4.3. What if I want to use optax optimizers in the update function?
+
+`opt_state` should be replicated as well.
 
 ### 3.5. Use optimizers from Optax
 
@@ -324,6 +400,18 @@ TPU VM instances in the same zone are connected with internal IPs, so you can [c
 
 #### 4.1.5. Monitor TPU usage
 
+#### 4.1.6. Start a server on TPU VM
+
+Example: Tensorboard
+
+Although every TPU VM is allocated with a public IP, in most cases you should expose a server to the Internet because it is insecure.
+
+Port forwarding via SSH
+
+```
+ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
+```
+
 ### 4.2. About JAX
 
 #### 4.2.1. Import convention
@@ -337,6 +425,15 @@ On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m
 TODO: Conclusion?
 
 #### 4.2.2. Manage random keys in JAX
+
+The regular way is this:
+
+```python
+key, *subkey = rand.split(key, num=4)
+print(subkey[0])
+print(subkey[1])
+print(subkey[2])
+```
 
 #### 4.2.3. Serialize model parameters
 
@@ -514,6 +611,30 @@ jax.config.update('jax_default_matmul_precision', jax.lax.Precision.HIGHEST)
 ```
 
 Other precision values can be found in [jax.lax.Precision](https://jax.readthedocs.io/en/latest/jax.lax.html#jax.lax.Precision). See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
+
+#### 6.2.5. Weight matrix of linear layer is transposed in PyTorch
+
+Weight matrix of linear layer is transposed in PyTorch, but not in Flax. Therefore, if you want to convert model parameters between PyTorch and Flax, you needed to transpose the weight matrices.
+
+In Flax:
+
+```python
+import flax.linen as nn
+import jax.numpy as np
+import jax.random as rand
+linear = nn.Dense(5)
+key = rand.PRNGKey(42)
+params = linear.init(key, np.zeros((3,)))
+print(params['params']['kernel'].shape)  # (3, 5)
+```
+
+In PyTorch:
+
+```python
+import torch.nn as nn
+linear = nn.Linear(3, 5)
+print(linear.weight.shape)  # (5, 3), not (3, 5)
+```
 
 ## 7. Community
 
