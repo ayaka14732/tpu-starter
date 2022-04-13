@@ -125,6 +125,8 @@ Besides its [homepage](https://sites.research.google/trc/about/), Shawn has writ
 
 At the first three months, it is completely free because all the fees are covered by Google Cloud free trial. After that, I pay only about HK$13.95 (approx. US$1.78) for one month for the outbound Internet traffic.
 
+It is worth noticing that, as Lucas points out [on Twitter](https://twitter.com/_clashluke/status/1513966154842353670), when launching dozens of TPUs, each downloads your dataset individually. Unfortunately, If TPU and dataset are on different continents, you'll have to pay for the bandwidth, which is very pricy.
+
 ## 4. Create a TPU VM Instance
 
 ### 4.1. Modify VPC firewall
@@ -308,24 +310,33 @@ JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number o
 
 #### 6.4.1. Basics of `jax.pmap`
 
-There are three key points here.
+There are four key points here.
 
-1\. The parameters should be replicated across devices
+1\. `params` and `opt_state` should be replicated across the devices:
 
 ```python
 replicated_params = jax.device_put_replicated(params, jax.devices())
 ```
 
-2\. Decorate the function with `jax.pmap`
+2\. `data` and `labels` should be split to the devices:
+
+```python
+n_devices = jax.device_count()
+batch_size, *data_shapes = data.shape
+assert batch_size % n_devices == 0, 'The data cannot be split evenly to the devices'
+data = data.reshape(n_devices, batch_size // n_devices, *data_shapes)
+```
+
+3\. Decorate the target function with `jax.pmap`:
 
 ```
 @partial(jax.pmap, axis_name='num_devices')
 ```
 
-3\. In the function, use `jax.lax.pmean` to calculate the mean value across devices
+4\. In the `loss` function, use `jax.lax.pmean` to calculate the mean value across devices:
 
 ```python
-delta = jax.lax.pmean(delta, axis_name='num_devices')  # calculate mean across devices
+grads = jax.lax.pmean(grads, axis_name='num_devices')  # calculate mean across devices
 ```
 
 See [01-basics/test_pmap.py](01-basics/test_pmap.py) for a complete working example.
