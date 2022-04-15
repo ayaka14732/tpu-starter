@@ -240,9 +240,16 @@ E external/org_tensorflow/tensorflow/python/profiler/internal/python_hooks.cc:36
 
 You cannot install Tensorflow in the regular way because it is not built with TPU support.
 
-TODO: Add a installation method.
+Installation method:
 
-See [gist](https://gist.github.com/ayaka14732/a22234f394d60a28545f76cff23397c0).
+```sh
+wget https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a/raw/d518753d166f3b77009d1f228101d93ff733d0d2/tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a/raw/d518753d166f3b77009d1f228101d93ff733d0d2/tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1
+cat tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1 > tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl
+rm -f tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1
+pip install tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl
+```
+
+See [gist](https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a).
 
 ### 5.9. Set up Mosh and Byobu
 
