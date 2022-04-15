@@ -12,12 +12,9 @@ sklearn
 tfds-nightly
 tensorboard-plugin-profile
 
-# libtpu (for JAX and PyTorch)
---find-links https://storage.googleapis.com/jax-releases/libtpu_releases.html
-libtpu_nightly  # if not working, downgrade to 0.1.dev20220128
-
 # JAX
-jax >= 0.3.1 
+jax
+jaxlib
 flax
 dm-haiku
 optax
