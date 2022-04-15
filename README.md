@@ -125,8 +125,6 @@ Besides its [homepage](https://sites.research.google/trc/about/), Shawn has writ
 
 At the first three months, it is completely free because all the fees are covered by Google Cloud free trial. After that, I pay only about HK$13.95 (approx. US$1.78) for one month for the outbound Internet traffic.
 
-It is worth noticing that, as Lucas points out [on Twitter](https://twitter.com/_clashluke/status/1513966154842353670), when launching dozens of TPUs, each downloads your dataset individually. Unfortunately, If TPU and dataset are on different continents, you'll have to pay for the bandwidth, which is very pricy.
-
 ## 4. Create a TPU VM Instance
 
 ### 4.1. Modify VPC firewall
@@ -221,7 +219,7 @@ You need to run the `source` command every time you open a shell.
 ```sh
 pip install -U pip
 pip install -U wheel
-pip install "jax[tpu]==0.3.5" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+pip install "jax[tpu]==0.3.6" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
 ### 5.7. Install common libraries
@@ -278,7 +276,7 @@ Run this command:
 python3 -c 'import jax; print(jax.devices())'  # should print TpuDevice
 ```
 
-Note that we are using `python3` instead of `python` here, so the command also works even if you haven't source Virtualenv.
+Note that we are using `python3` instead of `python` here, so the command also works even without activating Virtualenv.
 
 You can also run this command to link `python` to `python3` by default, but I do not recommend it:
 
