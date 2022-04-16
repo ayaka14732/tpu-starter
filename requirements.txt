@@ -8,8 +8,7 @@ Pillow
 sklearn
 
 # Tensorflow (JAX and PyTorch also rely on these)
-/usr/share/tpu/tf_nightly-2.7.0-cp38-cp38-linux_x86_64.whl; python_version == '3.8'
-tfds-nightly
+tensorflow
 tensorboard-plugin-profile
 
 # JAX
@@ -21,9 +20,7 @@ optax
 numpyro
 
 # PyTorch
-torch >= 1.10, < 1.11; python_version <= '3.8'
-https://storage.googleapis.com/tpu-pytorch/wheels/tpuvm/torch_xla-1.10-cp38-cp38-linux_x86_64.whl; python_version == '3.8'
-accelerate
+torch
 
 # Common DL libraries
 transformers
