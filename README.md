@@ -21,7 +21,7 @@ Everything you want to know about Google Cloud TPU
     * [5.2. Install Python 3.10](#52-install-python-310)
     * [5.3. Install Oh My Zsh](#53-install-oh-my-zsh)
     * [5.4. Change timezone](#54-change-timezone)
-    * [5.5. Create a Virtualenv](#55-create-a-virtualenv)
+    * [5.5. Create venv](#55-create-venv)
     * [5.6. Install JAX with TPU support](#56-install-jax-with-tpu-support)
     * [5.7. Install common libraries](#57-install-common-libraries)
     * [5.8. Install Tensorflow and Tensorboard Plugin Profile](#58-install-tensorflow-and-tensorboard-plugin-profile)
@@ -205,7 +205,7 @@ timedatectl list-timezones
 sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
 ```
 
-### 5.5. Create a Virtualenv
+### 5.5. Create venv
 
 ```sh
 python3.10 -m venv ~/.venv310
@@ -219,7 +219,7 @@ You need to run the `source` command every time you open a shell.
 ```sh
 pip install -U pip
 pip install -U wheel
-pip install "jax[tpu]==0.3.6" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
 ### 5.7. Install common libraries
@@ -283,7 +283,7 @@ Run this command:
 python3 -c 'import jax; print(jax.devices())'  # should print TpuDevice
 ```
 
-Note that we are using `python3` instead of `python` here, so the command also works even without activating Virtualenv.
+Note that we are using `python3` instead of `python` here, so the command also works even without activating venv.
 
 You can also run this command to link `python` to `python3` by default, but I do not recommend it:
 
@@ -291,7 +291,7 @@ You can also run this command to link `python` to `python3` by default, but I do
 sudo apt install -y python-is-python3
 ```
 
-This is because we should always use a Virtualenv to run our projects. When the `python` command is Python 2, if we forget to source Virtualenv, in most cases the command will fail, and this will remind us to source Virtualenv.
+This is because we should always use venv to run our projects. When the `python` command is Python 2, if we forget to source venv, in most cases the command will fail, and this will remind us to source venv.
 
 TODO: If TPU is not working...
 
