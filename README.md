@@ -17,17 +17,11 @@ Everything you want to know about Google Cloud TPU
     * [4.2. Create the instance](#42-create-the-instance)
     * [4.3. Add public key to the server](#43-add-public-key-to-the-server)
 * [5. Environment Setup](#5-environment-setup)
-    * [5.1. Install common packages](#51-install-common-packages)
-    * [5.2. Install Python 3.10](#52-install-python-310)
-    * [5.3. Install Oh My Zsh](#53-install-oh-my-zsh)
-    * [5.4. Change timezone](#54-change-timezone)
-    * [5.5. Create venv](#55-create-venv)
-    * [5.6. Install JAX with TPU support](#56-install-jax-with-tpu-support)
-    * [5.7. Install common libraries](#57-install-common-libraries)
-    * [5.8. Install Tensorflow and Tensorboard Plugin Profile](#58-install-tensorflow-and-tensorboard-plugin-profile)
-    * [5.9. Set up Mosh and Byobu](#59-set-up-mosh-and-byobu)
-    * [5.10. Set up VSCode Remote-SSH](#510-set-up-vscode-remote-ssh)
-    * [5.11. How can I verify that the TPU is working?](#511-how-can-i-verify-that-the-tpu-is-working)
+    * [5.1. Basic setup](#51-basic-setup)
+    * [5.2. Install common libraries](#52-install-common-libraries)
+    * [5.3. Set up Mosh and Byobu](#53-set-up-mosh-and-byobu)
+    * [5.4. Set up VSCode Remote-SSH](#54-set-up-vscode-remote-ssh)
+    * [5.5. How can I verify that the TPU is working?](#55-how-can-i-verify-that-the-tpu-is-working)
 * [6. JAX Basics](#6-jax-basics)
     * [6.1. Why JAX?](#61-why-jax)
     * [6.2. Compute gradients with jax.grad](#62-compute-gradients-with-jaxgrad)
@@ -59,17 +53,10 @@ Everything you want to know about Google Cloud TPU
     * [8.1. What is a[:, None]?](#81-what-is-a-none)
     * [8.2. How to understand np.einsum?](#82-how-to-understand-npeinsum)
 * [9. Common Gotchas](#9-common-gotchas)
-    * [9.1. About TPU](#91-about-tpu)
-        * [9.1.1. External IP of TPU machine changes occasionally](#911-external-ip-of-tpu-machine-changes-occasionally)
-        * [9.1.2. One TPU device can only be used by one process at a time](#912-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
-        * [9.1.3. TCMalloc breaks several programs](#913-tcmalloc-breaks-several-programs)
-        * [9.1.4. There is no TPU counterpart of nvidia-smi](#914-there-is-no-tpu-counterpart-of-nvidia-smi)
-    * [9.2. About JAX](#92-about-jax)
-        * [9.2.1. Indexing an array with an array](#921-indexing-an-array-with-an-array)
-        * [9.2.2. np.dot and torch.dot are different](#922-npdot-and-torchdot-are-different)
-        * [9.2.3. np.std and torch.std are different](#923-npstd-and-torchstd-are-different)
-        * [9.2.4. Computations on TPU are in low precision by default](#924-computations-on-tpu-are-in-low-precision-by-default)
-        * [9.2.5. Weight matrix of linear layer is transposed in PyTorch](#925-weight-matrix-of-linear-layer-is-transposed-in-pytorch)
+    * [9.1. External IP of TPU machine changes occasionally](#91-external-ip-of-tpu-machine-changes-occasionally)
+    * [9.2. One TPU device can only be used by one process at a time](#92-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
+    * [9.3. TCMalloc breaks several programs](#93-tcmalloc-breaks-several-programs)
+    * [9.4. There is no TPU counterpart of nvidia-smi](#94-there-is-no-tpu-counterpart-of-nvidia-smi)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -165,64 +152,50 @@ gcloud alpha compute tpus tpu-vm ssh node-1 --zone europe-west4-a
 
 After logging in, add your public key to `~/.ssh/authorized_keys`.
 
+For TPU Pods, can specify `--worker=${WORKER_NUMBER}`.
+
 ## 5. Environment Setup
 
 This section assumes you have no previous knowledge about developing on a server. You can skip this section if you are already familiar with developing on a server and have your preferred setting.
 
-### 5.1. Install common packages
+### 5.1. Basic setup
+
+Save the following script to `setup.sh` and run.
 
 ```sh
+#!/bin/sh
+
+# Install common packages
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y golang neofetch zsh mosh byobu
-sudo reboot
-```
 
-### 5.2. Install Python 3.10
-
-Unfortunately, [Python shipped with Ubuntu 20.04 LTS is Python 3.8](https://wiki.ubuntu.com/FocalFossa/ReleaseNotes#Python3_by_default), so you need to install Python 3.10 manually.
-
-```sh
+# Install Python 3.10
 sudo apt install -y software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt install -y python3.10-full python3.10-dev
-```
 
-### 5.3. Install Oh My Zsh
+# Install Oh My Zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+sudo chsh $USER -s /usr/bin/zsh
 
-[Oh My Zsh](https://ohmyz.sh/) makes the terminal much easier to use.
-
-To install Oh My Zsh, run the following command:
-
-```sh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-### 5.4. Change timezone
-
-```sh
-timedatectl list-timezones
+# Change timezone
+# timedatectl list-timezones  # list timezones
 sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
-```
 
-### 5.5. Create venv
-
-```sh
+# Create venv
 python3.10 -m venv ~/.venv310
-source ~/.venv310/bin/activate
-```
+. ~/.venv310/bin/activate
 
-You need to run the `source` command every time you open a shell.
-
-### 5.6. Install JAX with TPU support
-
-```sh
+# Install JAX with TPU support
 pip install -U pip
 pip install -U wheel
 pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
-### 5.7. Install common libraries
+You will need to run the `. ~/.venv310/bin/activate` command every time you open a shell.
+
+### 5.2. Install common libraries
 
 Clone this repository. In the root directory of this repository, run:
 
@@ -230,28 +203,7 @@ Clone this repository. In the root directory of this repository, run:
 pip install -r requirements.txt
 ```
 
-### 5.8. Install Tensorflow and Tensorboard Plugin Profile
-
-Although we are using JAX, we need to install Tensorflow as well to make `jax.profiler` work. Otherwise you will get an error:
-
-```
-E external/org_tensorflow/tensorflow/python/profiler/internal/python_hooks.cc:369] Can't import tensorflow.python.profiler.trace
-```
-
-You cannot install Tensorflow in the regular way because it is not built with TPU support.
-
-Installation method:
-
-```sh
-wget https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a/raw/d518753d166f3b77009d1f228101d93ff733d0d2/tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a/raw/d518753d166f3b77009d1f228101d93ff733d0d2/tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1
-cat tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1 > tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl
-rm -f tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.0 tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl.1
-pip install tensorflow-2.10.0-cp310-cp310-linux_x86_64.whl
-```
-
-See [gist](https://gist.github.com/ayaka14732/4954f64b7246beafabb45b636d96e92a).
-
-### 5.9. Set up Mosh and Byobu
+### 5.3. Set up Mosh and Byobu
 
 If you connect to the server directly with SSH, there is a risk of loss of connection. If this happens, the training script you are running in the foreground will be terminated.
 
@@ -265,7 +217,7 @@ mosh tpu1 -- byobu
 
 You can learn more about Byobu from the video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
 
-### 5.10. Set up VSCode Remote-SSH
+### 5.4. Set up VSCode Remote-SSH
 
 Open VSCode. Open the 'Extensions' panel on the left. Search for 'Remote - SSH' and install.
 
@@ -275,7 +227,7 @@ Wait for VSCode to be set up on the server. After it is finished, you can develo
 
 ![](assets/3.png)
 
-### 5.11. How can I verify that the TPU is working?
+### 5.5. How can I verify that the TPU is working?
 
 Run this command:
 
@@ -531,13 +483,11 @@ jax.tree_map(lambda x: x.shape, params)
 
 ## 9. Common Gotchas
 
-### 9.1. About TPU
-
-#### 9.1.1. External IP of TPU machine changes occasionally
+### 9.1. External IP of TPU machine changes occasionally
 
 As of 17 Feb 2022, the external IP address may change if there is a maintenance event. If this happens, you need to reconnect with the new IP address.
 
-#### 9.1.2. One TPU device can only be used by one process at a time
+### 9.2. One TPU device can only be used by one process at a time
 
 Unlike GPU, you will get an error if you run two processes on TPU at a time:
 
@@ -547,7 +497,7 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-#### 9.1.3. TCMalloc breaks several programs
+### 9.3. TCMalloc breaks several programs
 
 [TCMalloc](https://github.com/google/tcmalloc) is Google's customized memory allocation library. On TPU VM, `LD_PRELOAD` is set to use TCMalloc by default:
 
@@ -571,102 +521,6 @@ If you encounter problems related to TCMalloc, you can disable it in the current
 unset LD_PRELOAD
 ```
 
-#### 9.1.4. There is no TPU counterpart of `nvidia-smi`
+### 9.4. There is no TPU counterpart of `nvidia-smi`
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
-
-### 9.2. About JAX
-
-#### 9.2.1. Indexing an array with an array
-
-```python
-import jax.numpy as np
-import numpy as onp
-
-a = onp.arange(12).reshape((6, 2))
-b = onp.arange(6).reshape((2, 3))
-
-a_ = np.asarray(a)
-b_ = np.asarray(b)
-
-a[b]  # success
-a_[b_]  # success
-a_[b]  # success
-a[b_]  # error: index 3 is out of bounds for axis 1 with size 2
-```
-
-Generally speaking, JAX supports NumPy arrays, but NumPy does not support JAX arrays.
-
-#### 9.2.2. `np.dot` and `torch.dot` are different
-
-```python
-import numpy as onp
-import torch
-
-a = onp.random.rand(3, 4, 5)
-b = onp.random.rand(4, 5, 6)
-onp.dot(a, b)  # success
-
-a_ = torch.from_numpy(a)
-b_ = torch.from_numpy(b)
-torch.dot(a_, b_)  # error: 1D tensors expected, but got 3D and 3D tensors
-```
-
-#### 9.2.3. `np.std` and `torch.std` are different
-
-```python
-import torch
-
-x = torch.tensor([[-1., 1.]])
-
-print(x.std(-1).numpy())  # [1.4142135]
-print(x.numpy().std(-1))  # [1.]
-```
-
-This is because in [`np.std`](https://numpy.org/doc/stable/reference/generated/numpy.std.html) the denominator is _n_, while in [`torch.std`](https://pytorch.org/docs/stable/generated/torch.std.html) it is _n_-1. See [pytorch/pytorch#1854](https://github.com/pytorch/pytorch/issues/1854) for details.
-
-#### 9.2.4. Computations on TPU are in low precision by default
-
-JAX uses bfloat16 for matrix multiplication on TPU by default, even if the data type is float32.
-
-```python
-import jax.numpy as np
-
-print(4176 * 5996)  # 25039296
-
-a = np.array(0.4176, dtype=np.float32)
-b = np.array(0.5996, dtype=np.float32)
-print((a * b).item())  # 0.25039297342300415
-```
-
-To do matrix multiplication in float32, you need to add this line at the top of the script:
-
-```python
-jax.config.update('jax_default_matmul_precision', jax.lax.Precision.HIGHEST)
-```
-
-Other precision values can be found in [jax.lax.Precision](https://jax.readthedocs.io/en/latest/jax.lax.html#jax.lax.Precision). See [google/jax#9973](https://github.com/google/jax/issues/9973) for details.
-
-#### 9.2.5. Weight matrix of linear layer is transposed in PyTorch
-
-Weight matrix of linear layer is transposed in PyTorch, but not in Flax. Therefore, if you want to convert model parameters between PyTorch and Flax, you needed to transpose the weight matrices.
-
-In Flax:
-
-```python
-import flax.linen as nn
-import jax.numpy as np
-import jax.random as rand
-linear = nn.Dense(5)
-key = rand.PRNGKey(42)
-params = linear.init(key, np.zeros((3,)))
-print(params['params']['kernel'].shape)  # (3, 5)
-```
-
-In PyTorch:
-
-```python
-import torch.nn as nn
-linear = nn.Linear(3, 5)
-print(linear.weight.shape)  # (5, 3), not (3, 5)
-```
