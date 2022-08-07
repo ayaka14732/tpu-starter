@@ -2,7 +2,7 @@ import os
 os.environ['XLA_FLAGS'] = os.environ.get('XLA_FLAGS', '') + ' --xla_force_host_platform_device_count=8'
 
 import jax
-jax.config.update('jax_platform_name', 'cpu')
+jax.config.update('jax_platforms', 'cpu')
 
 from functools import partial
 import jax.numpy as np

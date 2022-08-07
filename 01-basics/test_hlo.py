@@ -4,7 +4,7 @@ from jax.lib import xla_bridge
 import jax.numpy as np
 from jaxlib.xla_extension import HloPrintOptions
 
-# jax.config.update('jax_platform_name', 'cpu')
+# jax.config.update('jax_platforms', 'cpu')
 
 backend = xla_bridge.get_backend()
 print(backend.platform_version)
