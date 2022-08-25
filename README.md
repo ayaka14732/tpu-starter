@@ -33,12 +33,12 @@ Everything you want to know about Google Cloud TPU
     * [7.6. Freeze certain model parameters](#76-freeze-certain-model-parameters)
     * [7.7. Integration with Hugging Face Transformers](#77-integration-with-hugging-face-transformers)
 * [8. TPU Best Practices](#8-tpu-best-practices)
-        * [8.1. Prefer Google Cloud Platform to Google Colab](#81-prefer-google-cloud-platform-to-google-colab)
-        * [8.2. Prefer TPU VM to TPU node](#82-prefer-tpu-vm-to-tpu-node)
-        * [8.3. Run Jupyter Notebook on TPU VM](#83-run-jupyter-notebook-on-tpu-vm)
-        * [8.4. Share files across multiple TPU VM instances](#84-share-files-across-multiple-tpu-vm-instances)
-        * [8.5. Monitor TPU usage](#85-monitor-tpu-usage)
-        * [8.6. Start a server on TPU VM](#86-start-a-server-on-tpu-vm)
+    * [8.1. Prefer Google Cloud Platform to Google Colab](#81-prefer-google-cloud-platform-to-google-colab)
+    * [8.2. Prefer TPU VM to TPU node](#82-prefer-tpu-vm-to-tpu-node)
+    * [8.3. Run Jupyter Notebook on TPU VM](#83-run-jupyter-notebook-on-tpu-vm)
+    * [8.4. Share files across multiple TPU VM instances](#84-share-files-across-multiple-tpu-vm-instances)
+    * [8.5. Monitor TPU usage](#85-monitor-tpu-usage)
+    * [8.6. Start a server on TPU VM](#86-start-a-server-on-tpu-vm)
 * [9. JAX Best Practices](#9-jax-best-practices)
     * [9.1. Import convention](#91-import-convention)
     * [9.2. Manage random keys in JAX](#92-manage-random-keys-in-jax)
@@ -354,7 +354,7 @@ See [Freeze Parameters Example](https://colab.research.google.com/drive/1-qLk5l0
 
 ## 8. TPU Best Practices
 
-#### 8.1. Prefer Google Cloud Platform to Google Colab
+### 8.1. Prefer Google Cloud Platform to Google Colab
 
 [Google Colab](https://colab.research.google.com/) only provides TPU v2-8 devices, while on [Google Cloud Platform](https://cloud.google.com/tpu) you can select TPU v2-8 and TPU v3-8.
 
@@ -372,23 +372,23 @@ devices = jax.devices()
 print(devices)  # should print TpuDevice
 ```
 
-#### 8.2. Prefer TPU VM to TPU node
+### 8.2. Prefer TPU VM to TPU node
 
 When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
-#### 8.3. Run Jupyter Notebook on TPU VM
+### 8.3. Run Jupyter Notebook on TPU VM
 
 After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
 
 Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
 
-#### 8.4. Share files across multiple TPU VM instances
+### 8.4. Share files across multiple TPU VM instances
 
 TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
-#### 8.5. Monitor TPU usage
+### 8.5. Monitor TPU usage
 
-#### 8.6. Start a server on TPU VM
+### 8.6. Start a server on TPU VM
 
 Example: Tensorboard
 
