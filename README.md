@@ -137,43 +137,53 @@ Click the console button on the top-right corner to activate Cloud Shell.
 In Cloud Shell, type the following command to create a Cloud TPU VM v3-8 with TPU software version v2-nightly20210914:
 
 ```sh
-gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone=europe-west4-a --accelerator-type=v3-8 --version=v2-nightly20210914
+gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone europe-west4-a --accelerator-type v3-8 --version v2-nightly20210914
 ```
 
 If the command fails because there are no more TPUs to allocate, you can re-run the command again.
 
-### 4.3. Add public key to the server
+Besides, It is more convinent to have the `gcloud` command installed on your local machine, so that you will not need to open a Cloud Shell to run the command.
 
-In Cloud Shell, login to the Cloud VM by the `gcloud` command:
+To create a TPU Pod, run the following command:
+
+```sh
+gcloud alpha compute tpus tpu-vm create node-3 --project tpu-advanced-research --zone us-central2-b --accelerator-type v4-16 --version v2-alpha-tpuv4
+```
+
+### 4.3. SSH to the server
+
+To SSH into the TPU VM:
 
 ```sh
 gcloud alpha compute tpus tpu-vm ssh node-1 --zone europe-west4-a
 ```
 
-After logging in, add your public key to `~/.ssh/authorized_keys`.
+To SSH into one of the TPU Pods:
 
-For TPU Pods, can specify `--worker=${WORKER_NUMBER}`.
+```sh
+gcloud alpha compute tpus tpu-vm ssh node-3 --zone us-central2-b --worker 0
+```
 
 ## 5. Environment Setup
 
-This section assumes you have no previous knowledge about developing on a server. You can skip this section if you are already familiar with developing on a server and have your preferred setting.
-
-### 5.1. Basic setup
-
-Save the following script to `setup.sh` and run.
+Save the following script to `setup.sh` and run the script.
 
 ```sh
-#!/bin/sh
+gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '
+
+# Confirm that the script is running on the host
+uname -a
 
 # Install common packages
-sudo apt update
-sudo apt upgrade -y
-sudo apt install -y golang neofetch zsh mosh byobu
+export DEBIAN_FRONTEND=noninteractive
+sudo apt-get update -y -qq
+sudo apt-get upgrade -y -qq
+sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
 
 # Install Python 3.10
-sudo apt install -y software-properties-common
+sudo apt-get install -y -qq software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt install -y python3.10-full python3.10-dev
+sudo apt-get install -y -qq python3.10-full python3.10-dev
 
 # Install Oh My Zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -184,18 +194,19 @@ sudo chsh $USER -s /usr/bin/zsh
 sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
 
 # Create venv
-python3.10 -m venv ~/.venv310
-. ~/.venv310/bin/activate
+python3.10 -m venv $HOME/.venv310
+. $HOME/.venv310/bin/activate
 
 # Install JAX with TPU support
 pip install -U pip
 pip install -U wheel
 pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+
+'
 ```
 
-You will need to run the `. ~/.venv310/bin/activate` command every time you open a shell.
+The script will create a venv in `~/.venv310`, so you will need to run the `. ~/.venv310/bin/activate` command when you activate a shell, or call the Python interpreter with `~/.venv310/bin/python`.
 
-### 5.2. Install common libraries
 
 Clone this repository. In the root directory of this repository, run:
 
@@ -203,7 +214,9 @@ Clone this repository. In the root directory of this repository, run:
 pip install -r requirements.txt
 ```
 
-### 5.3. Set up Mosh and Byobu
+## 6. Development Environment Setup
+
+### 6.1. Set up Mosh and Byobu
 
 If you connect to the server directly with SSH, there is a risk of loss of connection. If this happens, the training script you are running in the foreground will be terminated.
 
@@ -217,7 +230,7 @@ mosh tpu1 -- byobu
 
 You can learn more about Byobu from the video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
 
-### 5.4. Set up VSCode Remote-SSH
+### 6.2. Set up VSCode Remote-SSH
 
 Open VSCode. Open the 'Extensions' panel on the left. Search for 'Remote - SSH' and install.
 
@@ -227,45 +240,33 @@ Wait for VSCode to be set up on the server. After it is finished, you can develo
 
 ![](assets/3.png)
 
-### 5.5. How can I verify that the TPU is working?
+### 6.3. How can I verify that the TPU is working?
 
 Run this command:
 
 ```sh
-python3 -c 'import jax; print(jax.devices())'  # should print TpuDevice
+~/.venv310/bin/python -c 'import jax; print(jax.devices())'  # should print TpuDevice
 ```
 
-Note that we are using `python3` instead of `python` here, so the command also works even without activating venv.
-
-You can also run this command to link `python` to `python3` by default, but I do not recommend it:
+For TPU Pods, run the following command locally:
 
 ```sh
-sudo apt install -y python-is-python3
+gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '~/.venv310/bin/python -c "import jax; jax.process_index() == 0 and print(jax.devices())"'
 ```
 
-This is because we should always use venv to run our projects. When the `python` command is Python 2, if we forget to source venv, in most cases the command will fail, and this will remind us to source venv.
+## 7. JAX Basics
 
-TODO: If TPU is not working...
+### 7.1. Why JAX?
 
-See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
+JAX is one of the most exciting neural network libraries and it will be the most popular neural network library in the future.
 
-## 6. JAX Basics
+### 7.2. Compute gradients with `jax.grad`
 
-### 6.1. Why JAX?
+### 7.3. Load training data to CPU, then send batches to TPU
 
-The three popular deep learning libraries supported by [Hugging Face Transformers](https://github.com/huggingface/transformers) are [JAX](https://github.com/google/jax), [PyTorch](https://pytorch.org/) and [TensorFlow](https://www.tensorflow.org/).
+### 7.4. Data parallelism on 8 TPU cores
 
-As mentioned earlier, PyTorch is poorly supported on TPU. For Tensorflow and JAX, I regard JAX as the next generation and simplified version of Tensorflow. JAX is easier to use than Tensorflow.
-
-JAX uses the same APIs as [NumPy](https://numpy.org/). There are also a number of mutually compatible libraries built on top of JAX. A comprehensive list of the JAX ecosystem can be found at [n2cholas/awesome-jax](https://github.com/n2cholas/awesome-jax).
-
-### 6.2. Compute gradients with `jax.grad`
-
-### 6.3. Load training data to CPU, then send batches to TPU
-
-### 6.4. Data parallelism on 8 TPU cores
-
-#### 6.4.1. Basics of `jax.pmap`
+#### 7.4.1. Basics of `jax.pmap`
 
 There are four key points here.
 
@@ -300,7 +301,7 @@ See [01-basics/test_pmap.py](01-basics/test_pmap.py) for a complete working exam
 
 See also <https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>.
 
-#### 6.4.2. What if I want to have randomness in the update function?
+#### 7.4.2. What if I want to have randomness in the update function?
 
 ```python
 key, subkey = (lambda keys: (keys[0], keys[1:]))(rand.split(key, num=9))
@@ -314,13 +315,13 @@ key, *subkey = rand.split(key, num=9)
 
 Because in this way, `subkey` is a list rather than an array.
 
-#### 6.4.3. What if I want to use optax optimizers in the update function?
+#### 7.4.3. What if I want to use optax optimizers in the update function?
 
 `opt_state` should be replicated as well.
 
-### 6.5. Use optimizers from Optax
+### 7.5. Use optimizers from Optax
 
-### 6.6. Freeze certain model parameters
+### 7.6. Freeze certain model parameters
 
 Use [`optax.set_to_zero`](https://optax.readthedocs.io/en/latest/api.html#optax.set_to_zero) together with [`optax.multi_transform`](https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform).
 
@@ -345,15 +346,13 @@ optimizer = optax.multi_transform(optimizer_scheme, param_labels)
 
 See [Freeze Parameters Example](https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx) for details.
 
-### 6.7. Integration with Hugging Face Transformers
+### 7.7. Integration with Hugging Face Transformers
 
 [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
 
-## 7. Best Practices
+## 8. TPU Best Practices
 
-### 7.1. About TPU
-
-#### 7.1.1. Prefer Google Cloud Platform to Google Colab
+#### 8.1. Prefer Google Cloud Platform to Google Colab
 
 [Google Colab](https://colab.research.google.com/) only provides TPU v2-8 devices, while on [Google Cloud Platform](https://cloud.google.com/tpu) you can select TPU v2-8 and TPU v3-8.
 
@@ -371,23 +370,23 @@ devices = jax.devices()
 print(devices)  # should print TpuDevice
 ```
 
-#### 7.1.2. Prefer TPU VM to TPU node
+#### 8.2. Prefer TPU VM to TPU node
 
 When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
-#### 7.1.3. Run Jupyter Notebook on TPU VM
+#### 8.3. Run Jupyter Notebook on TPU VM
 
 After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
 
 Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
 
-#### 7.1.4. Share files across multiple TPU VM instances
+#### 8.4. Share files across multiple TPU VM instances
 
 TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
-#### 7.1.5. Monitor TPU usage
+#### 8.5. Monitor TPU usage
 
-#### 7.1.6. Start a server on TPU VM
+#### 8.6. Start a server on TPU VM
 
 Example: Tensorboard
 
@@ -399,9 +398,9 @@ Port forwarding via SSH
 ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
 ```
 
-### 7.2. About JAX
+## 9. JAX Best Practices
 
-#### 7.2.1. Import convention
+### 9.1. Import convention
 
 You may see two different kind of import conventions. One is to import jax.numpy as np and import the original numpy as onp. Another one is to import jax.numpy as jnp and leave original numpy as np.
 
@@ -411,7 +410,7 @@ On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m
 
 TODO: Conclusion?
 
-#### 7.2.2. Manage random keys in JAX
+### 9.2. Manage random keys in JAX
 
 The regular way is this:
 
@@ -422,7 +421,7 @@ print(subkey[1])
 print(subkey[2])
 ```
 
-#### 7.2.3. Serialize model parameters
+### 9.3. Serialize model parameters
 
 Normally, the model parameters are represented by a nested dictionary like this:
 
@@ -442,7 +441,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-#### 7.2.4. Convertion between NumPy array and JAX array
+### 9.4. Convertion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -457,37 +456,74 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-#### 7.2.5. Type annotation
+### 9.5. Convertion between PyTorch tensors and JAX arrays
 
-`np.ndarray`
+Convert a PyTorch tensor to a JAX array:
 
-#### 7.2.6. Check if an array is either a NumPy array or a JAX array
+```python
+import jax.numpy as np
+import torch
+
+a = torch.rand(2, 2)  # PyTorch tensor
+b = np.asarray(a.numpy())  # JAX array
+```
+
+Convert a JAX array to a PyTorch tensor:
+
+```python
+import jax.numpy as np
+import numpy as onp
+import torch
+
+a = np.zeros((2, 2))  # JAX array
+b = torch.from_numpy(onp.asarray(a))  # PyTorch tensor
+```
+
+This will result in a warning:
+
+```
+UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at  ../torch/csrc/utils/tensor_numpy.cpp:178.)
+```
+
+If you need writable tensors, you can use `onp.array` instead of `onp.asarray` to make a copy of the original array.
+
+### 9.6. Type annotation
+
+[google/jaxtyping](https://github.com/google/jaxtyping)
+
+### 9.7. Check if an array is either a NumPy array or a JAX array
 
 ```python
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
-#### 7.2.7. Get the shapes of all parameters in a nested dictionary
+### 9.8. Get the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-## 8. Confusing Syntax
+### 9.9. Generate random keys on CPU
 
-### 8.1. What is `a[:, None]`?
+## 10. Confusing Syntax
+
+### 10.1. What is `a[:, None]`?
 
 [`np.newaxis`](https://numpy.org/doc/stable/reference/constants.html#numpy.newaxis)
 
-### 8.2. How to understand `np.einsum`?
+### 10.2. How to understand `np.einsum`?
 
-## 9. Common Gotchas
+## 11. Common Gotchas
 
-### 9.1. External IP of TPU machine changes occasionally
+### 11.1. External IP of TPU machine changes occasionally
 
-As of 17 Feb 2022, the external IP address may change if there is a maintenance event. If this happens, you need to reconnect with the new IP address.
+As of 17 Jul 2022, the external IP address may change if there is a maintenance event.
 
-### 9.2. One TPU device can only be used by one process at a time
+Therefore, we should use `gcloud` command instead of directly connect to it with SSH. However, if we want to use VSCode, SSH is the only choice.
+
+The system will also be rebooted.
+
+### 11.2. One TPU device can only be used by one process at a time
 
 Unlike GPU, you will get an error if you run two processes on TPU at a time:
 
@@ -497,7 +533,7 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-### 9.3. TCMalloc breaks several programs
+### 11.3. TCMalloc breaks several programs
 
 [TCMalloc](https://github.com/google/tcmalloc) is Google's customized memory allocation library. On TPU VM, `LD_PRELOAD` is set to use TCMalloc by default:
 
@@ -521,6 +557,23 @@ If you encounter problems related to TCMalloc, you can disable it in the current
 unset LD_PRELOAD
 ```
 
-### 9.4. There is no TPU counterpart of `nvidia-smi`
+### 11.4. There is no TPU counterpart of `nvidia-smi`
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
+
+### 11.5. `libtpu.so` already in used by another process
+
+```sh
+if ! pgrep -a -u $USER python ; then
+    killall -q -w -s SIGKILL ~/.venv310/bin/python
+fi
+rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
+```
+
+See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
+
+### 11.6. JAX does not support the multiprocessing `fork` strategy
+
+Use the `spawn` or `forkserver` strategies.
+
+See <https://github.com/google/jax/issues/1805#issuecomment-561244991>.
