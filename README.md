@@ -128,6 +128,8 @@ Click the button to create a new firewall rule.
 
 Set name to 'allow-all', targets to 'All instances in the network', source filter to 0.0.0.0/0, protocols and ports to 'Allow all', and then click 'Create'.
 
+More stringently circumscribed firewall rules may be enforced for users working with confidential datasets or other situations where a high level of security is required.
+
 ### 4.2. Create the instance
 
 Open [Google Cloud Platform](https://cloud.google.com/tpu), navigate to the [TPU management page](https://console.cloud.google.com/compute/tpus).
@@ -560,6 +562,8 @@ unset LD_PRELOAD
 ```
 
 ### 11.4. There is no TPU counterpart of `nvidia-smi`
+
+See <https://twitter.com/ayaka14732/status/1565016471323156481>.
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
 
