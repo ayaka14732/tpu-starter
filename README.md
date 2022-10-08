@@ -23,15 +23,13 @@ Everything you want to know about Google Cloud TPU
     * [6.3. How can I verify that the TPU is working?](#63-how-can-i-verify-that-the-tpu-is-working)
 * [7. JAX Basics](#7-jax-basics)
     * [7.1. Why JAX?](#71-why-jax)
-    * [7.2. Compute gradients with jax.grad](#72-compute-gradients-with-jaxgrad)
-    * [7.3. Load training data to CPU, then send batches to TPU](#73-load-training-data-to-cpu-then-send-batches-to-tpu)
-    * [7.4. Data parallelism on 8 TPU cores](#74-data-parallelism-on-8-tpu-cores)
-        * [7.4.1. Basics of jax.pmap](#741-basics-of-jaxpmap)
-        * [7.4.2. What if I want to have randomness in the update function?](#742-what-if-i-want-to-have-randomness-in-the-update-function)
-        * [7.4.3. What if I want to use optax optimizers in the update function?](#743-what-if-i-want-to-use-optax-optimizers-in-the-update-function)
-    * [7.5. Use optimizers from Optax](#75-use-optimizers-from-optax)
-    * [7.6. Freeze certain model parameters](#76-freeze-certain-model-parameters)
-    * [7.7. Integration with Hugging Face Transformers](#77-integration-with-hugging-face-transformers)
+    * [7.2. Parallelism](#72-parallelism)
+        * [7.2.1. Basics of jax.pmap](#721-basics-of-jaxpmap)
+        * [7.2.2. What if I want to have randomness in the update function?](#722-what-if-i-want-to-have-randomness-in-the-update-function)
+        * [7.2.3. What if I want to use optax optimizers in the update function?](#723-what-if-i-want-to-use-optax-optimizers-in-the-update-function)
+    * [7.3. Freeze certain model parameters](#73-freeze-certain-model-parameters)
+    * [7.4. Integration with Hugging Face Transformers](#74-integration-with-hugging-face-transformers)
+    * [7.5. What is a[:, None]?](#75-what-is-a-none)
 * [8. TPU Best Practices](#8-tpu-best-practices)
     * [8.1. Prefer Google Cloud Platform to Google Colab](#81-prefer-google-cloud-platform-to-google-colab)
     * [8.2. Prefer TPU VM to TPU node](#82-prefer-tpu-vm-to-tpu-node)
@@ -48,10 +46,12 @@ Everything you want to know about Google Cloud TPU
     * [9.6. Type annotation](#96-type-annotation)
     * [9.7. Check if an array is either a NumPy array or a JAX array](#97-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
     * [9.8. Get the shapes of all parameters in a nested dictionary](#98-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
-    * [9.9. Generate random keys on CPU](#99-generate-random-keys-on-cpu)
-* [10. Confusing Syntax](#10-confusing-syntax)
-    * [10.1. What is a[:, None]?](#101-what-is-a-none)
-    * [10.2. How to understand np.einsum?](#102-how-to-understand-npeinsum)
+    * [9.9. The correct way to generate random numbers on CPU](#99-the-correct-way-to-generate-random-numbers-on-cpu)
+    * [9.10. Use optimizers from Optax](#910-use-optimizers-from-optax)
+    * [9.11. Use the cross-entropy loss implementation from Optax](#911-use-the-cross-entropy-loss-implementation-from-optax)
+* [10. Working With Pods](#10-working-with-pods)
+    * [10.1. Create a shared directory using NFS](#101-create-a-shared-directory-using-nfs)
+    * [10.2. Run a command simultaneously on all TPU Pods](#102-run-a-command-simultaneously-on-all-tpu-pods)
 * [11. Common Gotchas](#11-common-gotchas)
     * [11.1. External IP of TPU machine changes occasionally](#111-external-ip-of-tpu-machine-changes-occasionally)
     * [11.2. One TPU device can only be used by one process at a time](#112-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
@@ -66,7 +66,7 @@ This project is inspired by [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-
 
 ## 1. Community
 
-As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join the [@cloudtpu](https://t.me/cloudtpu) chat group on Telegram or [TPU Podcast](https://github.com/shawwn/tpunicorn#contact) on Discord, which are connected with each other.
+As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join the [@cloudtpu](https://t.me/cloudtpu) chat group on Telegram or [TPU Podcast](https://github.com/shawwn/tpunicorn#ml-community) on Discord, which are connected with each other. There is also an official TRC Cloud TPU v4 user group in Google Chat.
 
 ## 2. Introduction to TPU
 
@@ -262,15 +262,11 @@ gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --
 
 ### 7.1. Why JAX?
 
-JAX is one of the most exciting neural network libraries and it will be the most popular neural network library in the future.
+JAX is the next generation of deep learning libraries, with excellent support for TPU. To get started quickly with JAX, you can read the official [tutorial](https://jax.readthedocs.io/en/latest/jax-101/index.html).
 
-### 7.2. Compute gradients with `jax.grad`
+### 7.2. Parallelism
 
-### 7.3. Load training data to CPU, then send batches to TPU
-
-### 7.4. Data parallelism on 8 TPU cores
-
-#### 7.4.1. Basics of `jax.pmap`
+#### 7.2.1. Basics of `jax.pmap`
 
 There are four key points here.
 
@@ -305,7 +301,7 @@ See [01-basics/test_pmap.py](01-basics/test_pmap.py) for a complete working exam
 
 See also <https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>.
 
-#### 7.4.2. What if I want to have randomness in the update function?
+#### 7.2.2. What if I want to have randomness in the update function?
 
 ```python
 key, subkey = (lambda keys: (keys[0], keys[1:]))(rand.split(key, num=9))
@@ -319,13 +315,11 @@ key, *subkey = rand.split(key, num=9)
 
 Because in this way, `subkey` is a list rather than an array.
 
-#### 7.4.3. What if I want to use optax optimizers in the update function?
+#### 7.2.3. What if I want to use optax optimizers in the update function?
 
 `opt_state` should be replicated as well.
 
-### 7.5. Use optimizers from Optax
-
-### 7.6. Freeze certain model parameters
+### 7.3. Freeze certain model parameters
 
 Use [`optax.set_to_zero`](https://optax.readthedocs.io/en/latest/api.html#optax.set_to_zero) together with [`optax.multi_transform`](https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform).
 
@@ -350,9 +344,13 @@ optimizer = optax.multi_transform(optimizer_scheme, param_labels)
 
 See [Freeze Parameters Example](https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx) for details.
 
-### 7.7. Integration with Hugging Face Transformers
+### 7.4. Integration with Hugging Face Transformers
 
 [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
+
+### 7.5. What is `a[:, None]`?
+
+[`np.newaxis`](https://numpy.org/doc/stable/reference/constants.html#numpy.newaxis)
 
 ## 8. TPU Best Practices
 
@@ -507,15 +505,48 @@ isinstance(a, (np.ndarray, onp.ndarray))
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-### 9.9. Generate random keys on CPU
+### 9.9. The correct way to generate random numbers on CPU
 
-## 10. Confusing Syntax
+Use the [jax.default_device()](https://jax.readthedocs.io/en/latest/_autosummary/jax.default_device.html) context manager:
 
-### 10.1. What is `a[:, None]`?
+```python
+import jax
+import jax.random as rand
 
-[`np.newaxis`](https://numpy.org/doc/stable/reference/constants.html#numpy.newaxis)
+device_cpu = jax.devices('cpu')[0]
+with jax.default_device(device_cpu):
+    key = rand.PRNGKey(42)
+    a = rand.poisson(key, 3, shape=(1000,))
+    print(a.device())  # TFRT_CPU_0
+```
 
-### 10.2. How to understand `np.einsum`?
+See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
+
+### 9.10. Use optimizers from Optax
+
+### 9.11. Use the cross-entropy loss implementation from Optax
+
+`optax.softmax_cross_entropy_with_integer_labels`
+
+## 10. Working With Pods
+
+### 10.1. Create a shared directory using NFS
+
+See also: §8.4.
+
+### 10.2. Run a command simultaneously on all TPU Pods
+
+```sh
+#!/bin/bash
+
+while read p; do
+  ssh "$p" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv310/bin/activate; $@" &
+done < external-ips.txt
+rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv310/bin/activate; "$@"
+wait
+```
+
+See <https://github.com/ayaka14732/bart-base-jax/blob/f3ccef7b32e2aa17cde010a654eff1bebef933a4/startpod>.
 
 ## 11. Common Gotchas
 
