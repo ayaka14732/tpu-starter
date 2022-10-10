@@ -404,13 +404,14 @@ ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
 
 ### 9.1. Import convention
 
-You may see two different kind of import conventions. One is to import jax.numpy as np and import the original numpy as onp. Another one is to import jax.numpy as jnp and leave original numpy as np.
+The convention to import `numpy` and `jax.numpy` is:
 
-On 16 Jan 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as onp.
+```python
+import numpy as np
+import jax.numpy as jnp
+```
 
-On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as jnp and to leave original numpy as np.
-
-TODO: Conclusion?
+You may see a different kind of import convention, which is to import `jax.numpy` as `np` and original `numpy` as `onp`. According to [google/jax#3760](https://github.com/google/jax/pull/3760), this is the old convention and should not be used anymore.
 
 ### 9.2. Manage random keys in JAX
 
