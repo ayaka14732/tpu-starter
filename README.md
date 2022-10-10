@@ -41,8 +41,8 @@ Everything you want to know about Google Cloud TPU
     * [9.1. Import convention](#91-import-convention)
     * [9.2. Manage random keys in JAX](#92-manage-random-keys-in-jax)
     * [9.3. Serialize model parameters](#93-serialize-model-parameters)
-    * [9.4. Convertion between NumPy arrays and JAX arrays](#94-convertion-between-numpy-arrays-and-jax-arrays)
-    * [9.5. Convertion between PyTorch tensors and JAX arrays](#95-convertion-between-pytorch-tensors-and-jax-arrays)
+    * [9.4. Conversion between NumPy arrays and JAX arrays](#94-conversion-between-numpy-arrays-and-jax-arrays)
+    * [9.5. Conversion between PyTorch tensors and JAX arrays](#95-conversion-between-pytorch-tensors-and-jax-arrays)
     * [9.6. Type annotation](#96-type-annotation)
     * [9.7. Check if an array is either a NumPy array or a JAX array](#97-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
     * [9.8. Get the shapes of all parameters in a nested dictionary](#98-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
@@ -392,7 +392,7 @@ TPU VM instances in the same zone are connected with internal IPs, so you can [c
 
 Example: Tensorboard
 
-Although every TPU VM is allocated with a public IP, in most cases you should expose a server to the Internet because it is insecure.
+Although every TPU VM is allocated with a public IP, in most cases you should never expose a server to the Internet because it is insecure.
 
 Port forwarding via SSH
 
@@ -443,7 +443,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-### 9.4. Convertion between NumPy arrays and JAX arrays
+### 9.4. Conversion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -458,7 +458,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 9.5. Convertion between PyTorch tensors and JAX arrays
+### 9.5. Conversion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
