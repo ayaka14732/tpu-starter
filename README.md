@@ -1,5 +1,13 @@
 # TPU Starter
 
+<h4 align="center">
+    <p>
+        <b>English</b> |
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a> | 
+    <p>
+</h4>
+  
+
 Everything you want to know about Google Cloud TPU
 
 * [1. Community](#1-community)
@@ -41,8 +49,8 @@ Everything you want to know about Google Cloud TPU
     * [9.1. Import convention](#91-import-convention)
     * [9.2. Manage random keys in JAX](#92-manage-random-keys-in-jax)
     * [9.3. Serialize model parameters](#93-serialize-model-parameters)
-    * [9.4. Conversion between NumPy arrays and JAX arrays](#94-conversion-between-numpy-arrays-and-jax-arrays)
-    * [9.5. Conversion between PyTorch tensors and JAX arrays](#95-conversion-between-pytorch-tensors-and-jax-arrays)
+    * [9.4. Conversion between NumPy arrays and JAX arrays](#94-convertion-between-numpy-arrays-and-jax-arrays)
+    * [9.5. Conversion between PyTorch tensors and JAX arrays](#95-convertion-between-pytorch-tensors-and-jax-arrays)
     * [9.6. Type annotation](#96-type-annotation)
     * [9.7. Check if an array is either a NumPy array or a JAX array](#97-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
     * [9.8. Get the shapes of all parameters in a nested dictionary](#98-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
@@ -392,7 +400,7 @@ TPU VM instances in the same zone are connected with internal IPs, so you can [c
 
 Example: Tensorboard
 
-Although every TPU VM is allocated with a public IP, in most cases you should never expose a server to the Internet because it is insecure.
+Although every TPU VM is allocated with a public IP, in most cases you should expose a server to the Internet because it is insecure.
 
 Port forwarding via SSH
 
@@ -404,14 +412,13 @@ ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
 
 ### 9.1. Import convention
 
-The convention to import `numpy` and `jax.numpy` is:
+You may see two different kind of import conventions. One is to import jax.numpy as np and import the original numpy as onp. Another one is to import jax.numpy as jnp and leave original numpy as np.
 
-```python
-import numpy as np
-import jax.numpy as jnp
-```
+On 16 Jan 2019, Colin Raffel wrote in [a blog article](https://colinraffel.com/blog/you-don-t-know-jax.html) that the convention at that time was to import original numpy as onp.
 
-You may see a different kind of import convention, which is to import `jax.numpy` as `np` and original `numpy` as `onp`. According to [google/jax#3760](https://github.com/google/jax/pull/3760), this is the old convention and should not be used anymore.
+On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m/status/1324078070546882560) that he thinks the convention at that time was to import jax as jnp and to leave original numpy as np.
+
+TODO: Conclusion?
 
 ### 9.2. Manage random keys in JAX
 
@@ -444,7 +451,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-### 9.4. Conversion between NumPy arrays and JAX arrays
+### 9.4. Convertion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -459,7 +466,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 9.5. Conversion between PyTorch tensors and JAX arrays
+### 9.5. Convertion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
