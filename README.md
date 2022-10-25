@@ -3,7 +3,7 @@
 <h4 align="center">
     <p>
         <b>English</b> |
-        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a> | 
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a>
     <p>
 </h4>
   
@@ -49,8 +49,8 @@ Everything you want to know about Google Cloud TPU
     * [9.1. Import convention](#91-import-convention)
     * [9.2. Manage random keys in JAX](#92-manage-random-keys-in-jax)
     * [9.3. Serialize model parameters](#93-serialize-model-parameters)
-    * [9.4. Conversion between NumPy arrays and JAX arrays](#94-convertion-between-numpy-arrays-and-jax-arrays)
-    * [9.5. Conversion between PyTorch tensors and JAX arrays](#95-convertion-between-pytorch-tensors-and-jax-arrays)
+    * [9.4. Conversion between NumPy arrays and JAX arrays](#94-conversion-between-numpy-arrays-and-jax-arrays)
+    * [9.5. Conversion between PyTorch tensors and JAX arrays](#95-conversion-between-pytorch-tensors-and-jax-arrays)
     * [9.6. Type annotation](#96-type-annotation)
     * [9.7. Check if an array is either a NumPy array or a JAX array](#97-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
     * [9.8. Get the shapes of all parameters in a nested dictionary](#98-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
@@ -61,7 +61,7 @@ Everything you want to know about Google Cloud TPU
     * [10.1. Create a shared directory using NFS](#101-create-a-shared-directory-using-nfs)
     * [10.2. Run a command simultaneously on all TPU Pods](#102-run-a-command-simultaneously-on-all-tpu-pods)
 * [11. Common Gotchas](#11-common-gotchas)
-    * [11.1. External IP of TPU machine changes occasionally](#111-external-ip-of-tpu-machine-changes-occasionally)
+    * [11.1. TPU VMs will be rebooted occasionally](#111-tpu-vms-will-be-rebooted-occasionally)
     * [11.2. One TPU device can only be used by one process at a time](#112-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
     * [11.3. TCMalloc breaks several programs](#113-tcmalloc-breaks-several-programs)
     * [11.4. There is no TPU counterpart of nvidia-smi](#114-there-is-no-tpu-counterpart-of-nvidia-smi)
@@ -451,7 +451,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-### 9.4. Convertion between NumPy arrays and JAX arrays
+### 9.4. Conversion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -466,7 +466,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 9.5. Convertion between PyTorch tensors and JAX arrays
+### 9.5. Conversion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
@@ -558,13 +558,18 @@ See <https://github.com/ayaka14732/bart-base-jax/blob/f3ccef7b32e2aa17cde010a654
 
 ## 11. Common Gotchas
 
-### 11.1. External IP of TPU machine changes occasionally
+### 11.1. TPU VMs will be rebooted occasionally
 
-As of 17 Jul 2022, the external IP address may change if there is a maintenance event.
+As of 24 Oct 2022, the TPU VMs will be rebooted occasionally if there is a maintenance event.
 
-Therefore, we should use `gcloud` command instead of directly connect to it with SSH. However, if we want to use VSCode, SSH is the only choice.
+The following things will happen:
 
-The system will also be rebooted.
+1. All the running processes will be terminated
+2. The external IP address will be changed
+
+We can save the model parameters, optimiser states and other useful data occasionally, so that the model training can be easily resumed after termination.
+
+We should use `gcloud` command instead of connect directly to it with SSH. If we have to use SSH (e.g. if we want to use VSCode, SSH is the only choice), we need to manually change the target IP address.
 
 ### 11.2. One TPU device can only be used by one process at a time
 
