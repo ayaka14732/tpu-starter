@@ -6,7 +6,6 @@
         <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a>
     <p>
 </h4>
-  
 
 Everything you want to know about Google Cloud TPU
 
@@ -41,10 +40,6 @@ Everything you want to know about Google Cloud TPU
 * [8. TPU Best Practices](#8-tpu-best-practices)
     * [8.1. Prefer Google Cloud Platform to Google Colab](#81-prefer-google-cloud-platform-to-google-colab)
     * [8.2. Prefer TPU VM to TPU node](#82-prefer-tpu-vm-to-tpu-node)
-    * [8.3. Run Jupyter Notebook on TPU VM](#83-run-jupyter-notebook-on-tpu-vm)
-    * [8.4. Share files across multiple TPU VM instances](#84-share-files-across-multiple-tpu-vm-instances)
-    * [8.5. Monitor TPU usage](#85-monitor-tpu-usage)
-    * [8.6. Start a server on TPU VM](#86-start-a-server-on-tpu-vm)
 * [9. JAX Best Practices](#9-jax-best-practices)
     * [9.1. Import convention](#91-import-convention)
     * [9.2. Manage random keys in JAX](#92-manage-random-keys-in-jax)
@@ -57,16 +52,22 @@ Everything you want to know about Google Cloud TPU
     * [9.9. The correct way to generate random numbers on CPU](#99-the-correct-way-to-generate-random-numbers-on-cpu)
     * [9.10. Use optimizers from Optax](#910-use-optimizers-from-optax)
     * [9.11. Use the cross-entropy loss implementation from Optax](#911-use-the-cross-entropy-loss-implementation-from-optax)
-* [10. Working With Pods](#10-working-with-pods)
-    * [10.1. Create a shared directory using NFS](#101-create-a-shared-directory-using-nfs)
-    * [10.2. Run a command simultaneously on all TPU Pods](#102-run-a-command-simultaneously-on-all-tpu-pods)
-* [11. Common Gotchas](#11-common-gotchas)
-    * [11.1. TPU VMs will be rebooted occasionally](#111-tpu-vms-will-be-rebooted-occasionally)
-    * [11.2. One TPU device can only be used by one process at a time](#112-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
-    * [11.3. TCMalloc breaks several programs](#113-tcmalloc-breaks-several-programs)
-    * [11.4. There is no TPU counterpart of nvidia-smi](#114-there-is-no-tpu-counterpart-of-nvidia-smi)
-    * [11.5. libtpu.so already in used by another process](#115-libtpuso-already-in-used-by-another-process)
-    * [11.6. JAX does not support the multiprocessing fork strategy](#116-jax-does-not-support-the-multiprocessing-fork-strategy)
+* [10. How Can I...](#10-how-can-i)
+    * [10.1. Run Jupyter Notebook on TPU VM](#101-run-jupyter-notebook-on-tpu-vm)
+    * [10.2. Share files across multiple TPU VM instances](#102-share-files-across-multiple-tpu-vm-instances)
+    * [10.3. Monitor TPU usage](#103-monitor-tpu-usage)
+    * [10.4. Start a server on TPU VM](#104-start-a-server-on-tpu-vm)
+    * [10.5. Run separate processes on different TPU cores](#105-run-separate-processes-on-different-tpu-cores)
+* [11. Working With Pods](#11-working-with-pods)
+    * [11.1. Create a shared directory using NFS](#111-create-a-shared-directory-using-nfs)
+    * [11.2. Run a command simultaneously on all TPU Pods](#112-run-a-command-simultaneously-on-all-tpu-pods)
+* [12. Common Gotchas](#12-common-gotchas)
+    * [12.1. TPU VMs will be rebooted occasionally](#121-tpu-vms-will-be-rebooted-occasionally)
+    * [12.2. One TPU device can only be used by one process at a time](#122-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
+    * [12.3. TCMalloc breaks several programs](#123-tcmalloc-breaks-several-programs)
+    * [12.4. There is no TPU counterpart of nvidia-smi](#124-there-is-no-tpu-counterpart-of-nvidia-smi)
+    * [12.5. libtpu.so already in used by another process](#125-libtpuso-already-in-used-by-another-process)
+    * [12.6. JAX does not support the multiprocessing fork strategy](#126-jax-does-not-support-the-multiprocessing-fork-strategy)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -91,8 +92,6 @@ Moreover, for researchers, [the TRC program](https://sites.research.google/trc/a
 ### 2.2. TPU is so good, why haven't I seen many people using it?
 
 If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
-
-Another problem is that although a single TPU v3-8 device has 8 cores (16 GiB memory for each core), you need to write extra code to make use of all the 8 cores (see below). Otherwise, only the first core is used.
 
 ### 2.3. I know TPU is good now. Can I touch a real TPU?
 
@@ -384,30 +383,6 @@ print(devices)  # should print TpuDevice
 
 When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
-### 8.3. Run Jupyter Notebook on TPU VM
-
-After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
-
-Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
-
-### 8.4. Share files across multiple TPU VM instances
-
-TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
-
-### 8.5. Monitor TPU usage
-
-### 8.6. Start a server on TPU VM
-
-Example: Tensorboard
-
-Although every TPU VM is allocated with a public IP, in most cases you should expose a server to the Internet because it is insecure.
-
-Port forwarding via SSH
-
-```
-ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
-```
-
 ## 9. JAX Best Practices
 
 ### 9.1. Import convention
@@ -536,13 +511,45 @@ See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
 `optax.softmax_cross_entropy_with_integer_labels`
 
-## 10. Working With Pods
+## 10. How Can I...
 
-### 10.1. Create a shared directory using NFS
+### 10.1. Run Jupyter Notebook on TPU VM
+
+After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
+
+Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
+
+### 10.2. Share files across multiple TPU VM instances
+
+TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
+
+### 10.3. Monitor TPU usage
+
+[jax-smi](https://github.com/ayaka14732/jax-smi)
+
+### 10.4. Start a server on TPU VM
+
+Example: Tensorboard
+
+Although every TPU VM is allocated with a public IP, in most cases you should expose a server to the Internet because it is insecure.
+
+Port forwarding via SSH
+
+```
+ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
+```
+
+### 10.5. Run separate processes on different TPU cores
+
+https://gist.github.com/skye/f82ba45d2445bb19d53545538754f9a3
+
+## 11. Working With Pods
+
+### 11.1. Create a shared directory using NFS
 
 See also: §8.4.
 
-### 10.2. Run a command simultaneously on all TPU Pods
+### 11.2. Run a command simultaneously on all TPU Pods
 
 ```sh
 #!/bin/bash
@@ -556,9 +563,9 @@ wait
 
 See <https://github.com/ayaka14732/bart-base-jax/blob/f3ccef7b32e2aa17cde010a654eff1bebef933a4/startpod>.
 
-## 11. Common Gotchas
+## 12. Common Gotchas
 
-### 11.1. TPU VMs will be rebooted occasionally
+### 12.1. TPU VMs will be rebooted occasionally
 
 As of 24 Oct 2022, the TPU VMs will be rebooted occasionally if there is a maintenance event.
 
@@ -571,7 +578,7 @@ We can save the model parameters, optimiser states and other useful data occasio
 
 We should use `gcloud` command instead of connect directly to it with SSH. If we have to use SSH (e.g. if we want to use VSCode, SSH is the only choice), we need to manually change the target IP address.
 
-### 11.2. One TPU device can only be used by one process at a time
+### 12.2. One TPU device can only be used by one process at a time
 
 Unlike GPU, you will get an error if you run two processes on TPU at a time:
 
@@ -581,7 +588,7 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
-### 11.3. TCMalloc breaks several programs
+### 12.3. TCMalloc breaks several programs
 
 [TCMalloc](https://github.com/google/tcmalloc) is Google's customized memory allocation library. On TPU VM, `LD_PRELOAD` is set to use TCMalloc by default:
 
@@ -605,13 +612,13 @@ If you encounter problems related to TCMalloc, you can disable it in the current
 unset LD_PRELOAD
 ```
 
-### 11.4. There is no TPU counterpart of `nvidia-smi`
+### 12.4. There is no TPU counterpart of `nvidia-smi`
 
 See <https://twitter.com/ayaka14732/status/1565016471323156481>.
 
 See [google/jax#9756](https://github.com/google/jax/discussions/9756).
 
-### 11.5. `libtpu.so` already in used by another process
+### 12.5. `libtpu.so` already in used by another process
 
 ```sh
 if ! pgrep -a -u $USER python ; then
@@ -622,7 +629,7 @@ rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
 
 See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
 
-### 11.6. JAX does not support the multiprocessing `fork` strategy
+### 12.6. JAX does not support the multiprocessing `fork` strategy
 
 Use the `spawn` or `forkserver` strategies.
 
