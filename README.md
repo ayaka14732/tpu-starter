@@ -63,11 +63,10 @@ Everything you want to know about Google Cloud TPU
     * [11.2. Run a command simultaneously on all TPU Pods](#112-run-a-command-simultaneously-on-all-tpu-pods)
 * [12. Common Gotchas](#12-common-gotchas)
     * [12.1. TPU VMs will be rebooted occasionally](#121-tpu-vms-will-be-rebooted-occasionally)
-    * [12.2. One TPU device can only be used by one process at a time](#122-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
+    * [12.2. One TPU core can only be used by one process at a time](#122-one-tpu-core-can-only-be-used-by-one-process-at-a-time)
     * [12.3. TCMalloc breaks several programs](#123-tcmalloc-breaks-several-programs)
-    * [12.4. There is no TPU counterpart of nvidia-smi](#124-there-is-no-tpu-counterpart-of-nvidia-smi)
-    * [12.5. libtpu.so already in used by another process](#125-libtpuso-already-in-used-by-another-process)
-    * [12.6. JAX does not support the multiprocessing fork strategy](#126-jax-does-not-support-the-multiprocessing-fork-strategy)
+    * [12.4. libtpu.so already in used by another process](#124-libtpuso-already-in-used-by-another-process)
+    * [12.5. JAX does not support the multiprocessing fork strategy](#125-jax-does-not-support-the-multiprocessing-fork-strategy)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -547,7 +546,7 @@ https://gist.github.com/skye/f82ba45d2445bb19d53545538754f9a3
 
 ### 11.1. Create a shared directory using NFS
 
-See also: §8.4.
+See also: §10.2.
 
 ### 11.2. Run a command simultaneously on all TPU Pods
 
@@ -578,15 +577,15 @@ We can save the model parameters, optimiser states and other useful data occasio
 
 We should use `gcloud` command instead of connect directly to it with SSH. If we have to use SSH (e.g. if we want to use VSCode, SSH is the only choice), we need to manually change the target IP address.
 
-### 12.2. One TPU device can only be used by one process at a time
+### 12.2. One TPU core can only be used by one process at a time
+
+See also: §10.5.
 
 Unlike GPU, you will get an error if you run two processes on TPU at a time:
 
 ```
 I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so already in use by another process. Run "$ sudo lsof -w /dev/accel0" to figure out which process is using the TPU. Not attempting to load libtpu.so in this process.
 ```
-
-Even if a TPU device has 8 cores and one process only utilizes the first core, the other processes will not be able to utilize the rest of the cores.
 
 ### 12.3. TCMalloc breaks several programs
 
@@ -612,13 +611,7 @@ If you encounter problems related to TCMalloc, you can disable it in the current
 unset LD_PRELOAD
 ```
 
-### 12.4. There is no TPU counterpart of `nvidia-smi`
-
-See <https://twitter.com/ayaka14732/status/1565016471323156481>.
-
-See [google/jax#9756](https://github.com/google/jax/discussions/9756).
-
-### 12.5. `libtpu.so` already in used by another process
+### 12.4. `libtpu.so` already in used by another process
 
 ```sh
 if ! pgrep -a -u $USER python ; then
@@ -629,7 +622,7 @@ rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
 
 See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
 
-### 12.6. JAX does not support the multiprocessing `fork` strategy
+### 12.5. JAX does not support the multiprocessing `fork` strategy
 
 Use the `spawn` or `forkserver` strategies.
 
