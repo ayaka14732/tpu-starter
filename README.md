@@ -12,9 +12,9 @@ Everything you want to know about Google Cloud TPU
 * [1. Community](#1-community)
 * [2. Introduction to TPU](#2-introduction-to-tpu)
     * [2.1. Why TPU?](#21-why-tpu)
-    * [2.2. TPU is so good, why haven't I seen many people using it?](#22-tpu-is-so-good-why-havent-i-seen-many-people-using-it)
-    * [2.3. I know TPU is good now. Can I touch a real TPU?](#23-i-know-tpu-is-good-now-can-i-touch-a-real-tpu)
-    * [2.4. How do I get access to TPU?](#24-how-do-i-get-access-to-tpu)
+    * [2.2. How can I get free access to TPU?](#22-how-can-i-get-free-access-to-tpu)
+    * [2.3. TPU is so good, why haven't I seen many people using it?](#23-tpu-is-so-good-why-havent-i-seen-many-people-using-it)
+    * [2.4. I know TPU is good now. Can I touch a real TPU?](#24-i-know-tpu-is-good-now-can-i-touch-a-real-tpu)
     * [2.5. What does it mean to create a TPU instance? What do I actually get?](#25-what-does-it-mean-to-create-a-tpu-instance-what-do-i-actually-get)
 * [3. Introduction to the TRC Program](#3-introduction-to-the-trc-program)
     * [3.1. How to apply for the TRC program?](#31-how-to-apply-for-the-trc-program)
@@ -88,19 +88,19 @@ TPU is a special hardware designed specifically for machine learning. There is a
 
 Moreover, for researchers, [the TRC program](https://sites.research.google/trc/about/) provides free TPU. As far as I know, if you have ever been concerned about the computing resources for training models, this is the best solution. For more details on the TRC program, see below.
 
-### 2.2. TPU is so good, why haven't I seen many people using it?
+### 2.2. How can I get free access to TPU?
+
+Researchers can apply for the [TRC program](https://sites.research.google/trc/about/) and get access to TPU for free.
+
+### 2.3. TPU is so good, why haven't I seen many people using it?
 
 If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my experiments, one batch took about 14 seconds to run on CPU, but over 4 hours to run on TPU. Twitter user @mauricetpunkt also thinks [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
 
-### 2.3. I know TPU is good now. Can I touch a real TPU?
+Therefore, if you use TPU, you will be using JAX as the deep learning framework. Fortunately, popular deep learning libraries like Hugging Face Transformers are actively [adding JAX support](https://huggingface.co/docs/transformers/index#supported-frameworks) to their models alongside PyTorch.
+
+### 2.4. I know TPU is good now. Can I touch a real TPU?
 
 Unfortunately, in most cases you cannot touch a TPU physically. TPU is only available through cloud services.
-
-### 2.4. How do I get access to TPU?
-
-You can create TPU instances on [Google Cloud Platform](https://cloud.google.com/tpu). For more information on setting up TPU, see below.
-
-You can also use [Google Colab](https://colab.research.google.com/), but I don't recommend this way. Moreover, if you get free access to TPU from the [TRC program](https://sites.research.google/trc/about/), you will be using Google Cloud Platform, not Google Colab.
 
 ### 2.5. What does it mean to create a TPU instance? What do I actually get?
 
