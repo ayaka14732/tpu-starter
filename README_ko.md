@@ -56,16 +56,21 @@ Google Cloud TPU에 대한 모든 것
     * [9.9. CPU에서 무작위 숫자 생성하는 올바른 방법](#99-the-correct-way-to-generate-random-numbers-on-cpu)
     * [9.10. Optax로 optimizers 사용하기](#910-use-optimizers-from-optax)
     * [9.11. Optax로 크로스엔트로피 loss 사용하기](#911-use-the-cross-entropy-loss-implementation-from-optax)
-* [10. Pods 사용하기](#10-working-with-pods)
-    * [10.1. NFS를 사용해 공유 디렉토리 만들기](#101-create-a-shared-directory-using-nfs)
-    * [10.2. 모든 TPU Pods에서 동시에 command 실행하기](#102-run-a-command-simultaneously-on-all-tpu-pods)
-* [11. 일반적인 문제들](#11-common-gotchas)
-    * [11.1. TPU machine의 External IP가 빈번하게 바뀌는 현상](#111-external-ip-of-tpu-machine-changes-occasionally)
-    * [11.2. 1개 TPU device는 1개 프로세스만 사용가능](#112-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
-    * [11.3. 여러 프로그램과 충돌나는 TCMalloc](#113-tcmalloc-breaks-several-programs)
-    * [11.4. TPU를 위한 nvidia-smi 대체프로그램이 없음](#114-there-is-no-tpu-counterpart-of-nvidia-smi)
-    * [11.5. 다른 프로세스에 의해 libtpu.so가 사용중인 현상](#115-libtpuso-already-in-used-by-another-process)
-    * [11.6. fork 방식의 multiprocessing을 지원하지 않는 JAX](#116-jax-does-not-support-the-multiprocessing-fork-strategy)
+* [10. 사용 방법 모음](#10-how-can-i)
+    * [10.1. TPU VM에서 주피터 노트북 사용하기](#101-run-jupyter-notebook-on-tpu-vm)
+    * [10.2. 여러개의 TPU VM 인스턴스간의 파일 공유하기](#102-share-files-across-multiple-tpu-vm-instances)
+    * [10.3. TPU 사용 모니터링](#103-monitor-tpu-usage)
+    * [10.4. TPU VM에서 서버 시작하기](#104-start-a-server-on-tpu-vm)
+    * [10.5. 다른 TPU 코어 간 분리된 프로세스 실행하기](#105-run-separate-processes-on-different-tpu-cores)
+* [11. Pods 사용하기](#11-working-with-pods)
+    * [11.1. NFS를 사용해 공유 디렉토리 만들기](#111-create-a-shared-directory-using-nfs)
+    * [11.2. 모든 TPU Pods에서 동시에 command 실행하기](#112-run-a-command-simultaneously-on-all-tpu-pods)
+* [12. 일반적인 문제들](#12-common-gotchas)
+    * [12.1. TPU VM이 가끔씩 재부팅 되는 현상](#121-external-ip-of-tpu-machine-changes-occasionally)
+    * [12.2. 1개 TPU device는 1개 프로세스만 사용가능](#122-one-tpu-device-can-only-be-used-by-one-process-at-a-time)
+    * [12.3. 여러 프로그램과 충돌나는 TCMalloc](#123-tcmalloc-breaks-several-programs)
+    * [12.4. 다른 프로세스에 의해 libtpu.so가 사용중인 현상](#125-libtpuso-already-in-used-by-another-process)
+    * [12.5. fork 방식의 multiprocessing을 지원하지 않는 JAX](#126-jax-does-not-support-the-multiprocessing-fork-strategy)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -555,13 +560,47 @@ See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
 `optax.softmax_cross_entropy_with_integer_labels`
 
-## 10. Pods 사용하기
+## 10. 사용 방법 모음
 
-### 10.1. NFS를 사용해 공유 디렉토리 만들기
+### 10.1. TPU VM에서 주피터 노트북 사용하기
+
+Remote-SSH를 세팅 후에, VSCode 안에서 주피터 노트북 파일로 작업할 수 있습니다.
+
+대체 방법으로, 사용하는 PC에서 포트 포워딩으로 TPU VM에서 주피터 노트북 서버를 실행시킬 수도 있습니다. 하지만,
+VSCode가 더 강력하고 다른 도구(확장프로그램 등)들과 더 잘 통합되며 설정하기 쉽기 때문에 VSCode를 쓰는 편이 좋습니다.  
+[번역자 블로그 참고](https://okdone.tistory.com/144)
+
+### 10.2. 여러개의 TPU VM 인스턴스간의 파일 공유하기
+
+같은 존에 있는 TPU VM 인스턴스는 내부 IP를 통해 연결되어 있습니다. 이를 사용하면 [NFS를 사용한 공유 파일 시스템](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/)을 만들 수 있습니다.
+
+### 10.3. TPU 사용 모니터링
+
+[jax-smi](https://github.com/ayaka14732/jax-smi)
+
+### 10.4. TPU VM에서 서버 시작하기
+
+예시: Tensorboard
+
+비록 TPU VM에 공인 IP가 있어서 대부분 인터넷에 IP를 노출해야 하는데, 이건 보안에 좋지 않습니다
+
+SSH를 통한 포트 포워딩
+
+```
+ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
+```
+
+### 10.5. 다른 TPU 코어 간 분리된 프로세스 실행하기
+
+https://gist.github.com/skye/f82ba45d2445bb19d53545538754f9a3
+
+## 11. Pods 사용하기
+
+### 11.1. NFS를 사용해 공유 디렉토리 만들기
 
 참고: §8.4.
 
-### 10.2. 모든 TPU Pods에서 동시에 command 실행하기
+### 11.2. 모든 TPU Pods에서 동시에 command 실행하기
 
 ```sh
 #!/bin/bash
@@ -575,18 +614,22 @@ wait
 
 See <https://github.com/ayaka14732/bart-base-jax/blob/f3ccef7b32e2aa17cde010a654eff1bebef933a4/startpod>.
 
-## 11. 일반적인 문제들
+## 12. 일반적인 문제들
 
-### 11.1. TPU machine의 External IP가 빈번하게 바뀌는 현상
+### 12.1. TPU VM이 가끔 재부팅 되는 현상
 
-22.7.17 유지보수 일정이 있을 경우, 외부 IP주소가 바뀔 가능성이 있음 
+2022년 10월 24일부터 유지보수 작업이 있는 경우 TPU VM이 가끔 재부팅됩니다.
 
-그러므로 SSH를 통해 직접 접속하기 보단 `gcloud` command를 사용해야 합니다.  
-그러나 VSCode를 사용하려면 SSH를 사용할 수 밖에 없습니다.(IP 바뀌면 ssh 정보에서 IP수정해줘야함)
+아래와 같은 현상이 발생할 예정입니다:
 
-시스템 또한 재부팅 될겁니다.
+1. 실행중인 모든 프로세스 종료
+2. 외부 IP 주소 변경
 
-### 11.2. 1개 TPU device는 1개 프로세스만 사용가능
+모델 매개변수, 옵티마이저 상태 및 기타 유용한 데이터를 때때로 저장할 수 있으므로 종료 후 모델 교육을 쉽게 재개할 수 있습니다.(자주 저장할 것)
+
+SSH로 직접 연결하는 대신 `gcloud` 명령을 사용해야 합니다. SSH를 사용해야 하는 경우(예: VSCode를 사용하려는 경우 SSH가 유일한 선택) 대상 IP 주소를 수동으로 변경해야 합니다.
+
+### 12.2. 1개 TPU device는 1개 프로세스만 사용가능
 
 GPU와 다르게 두개의 프로세스가 TPU에 동시에 접근하면 에러가 발생합니다.
 
@@ -596,7 +639,7 @@ I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so al
 
 TPU 디바이스가 8개의 코어이지만, 1개의 프로세스만 첫번째 코어에 접근하며 다른 프로세스는 여분의 코어를 활용할 수 없습니다.
 
-### 11.3. 여러 프로그램과 충돌나는 TCMalloc
+### 12.3. 여러 프로그램과 충돌나는 TCMalloc
 
 [TCMalloc](https://github.com/google/tcmalloc)은 구글의 커스텀 메모리 배정 라이브러리 입니다. TPU VM에서 `LD_PRELOAD`은 TCMalloc을 디폴트로 사용하게 되어 있습니다. :
 
@@ -620,13 +663,7 @@ TCMalloc과 연관된 문제에 직면할 경우, 아래 명령어를 활용해 
 unset LD_PRELOAD
 ```
 
-### 11.4. TPU를 위한 `nvidia-smi` 대체프로그램이 없음
-
-참고 <https://twitter.com/ayaka14732/status/1565016471323156481>.
-
-참고 [google/jax#9756](https://github.com/google/jax/discussions/9756).
-
-### 11.5. 다른 프로세스에 의해 `libtpu.so`가 사용중인 현상
+### 12.4. 다른 프로세스에 의해 `libtpu.so`가 사용중인 현상
 
 ```sh
 if ! pgrep -a -u $USER python ; then
@@ -637,7 +674,7 @@ rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
 
 참고 <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
 
-### 11.6. `fork` 방식의 multiprocessing을 지원하지 않는 JAX
+### 12.5. `fork` 방식의 multiprocessing을 지원하지 않는 JAX
 
  `spawn` 이나 `forkserver` 방법을 사용하세요.
 
