@@ -74,7 +74,7 @@ This project is inspired by [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-
 
 ## 1. Community
 
-As of 23 Feb 2022, there is no official chat group for Cloud TPUs. You can join the [@cloudtpu](https://t.me/cloudtpu) chat group on Telegram or [TPU Podcast](https://github.com/shawwn/tpunicorn#ml-community) on Discord, which are connected with each other. There is also an official TRC Cloud TPU v4 user group in Google Chat.
+Google has established an official Discord channel for TPU. Join the Discord server at https://twitter.com/googledeveurope/status/1583032777984835585, and be sure to check out the #tpu-research-cloud channel.
 
 ## 2. Introduction to TPU
 
