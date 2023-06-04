@@ -144,10 +144,10 @@ Open [Google Cloud Platform](https://cloud.google.com/tpu), navigate to the [TPU
 
 Click the console button on the top-right corner to activate Cloud Shell.
 
-In Cloud Shell, type the following command to create a Cloud TPU VM v3-8 with TPU software version v2-nightly20210914:
+In Cloud Shell, type the following command to create a Cloud TPU VM v3-8 with TPU software version tpu-vm-base:
 
 ```sh
-gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone europe-west4-a --accelerator-type v3-8 --version v2-nightly20210914
+gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone europe-west4-a --accelerator-type v3-8 --version tpu-vm-base
 ```
 
 If the command fails because there are no more TPUs to allocate, you can re-run the command again.
@@ -190,10 +190,10 @@ sudo apt-get update -y -qq
 sudo apt-get upgrade -y -qq
 sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
 
-# Install Python 3.10
+# Install Python 3.11
 sudo apt-get install -y -qq software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.10-full python3.10-dev
+sudo apt-get install -y -qq python3.11-full python3.11-dev
 
 # Install Oh My Zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -204,8 +204,8 @@ sudo chsh $USER -s /usr/bin/zsh
 sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
 
 # Create venv
-python3.10 -m venv $HOME/.venv310
-. $HOME/.venv310/bin/activate
+python3.11 -m venv $HOME/.venv311
+. $HOME/.venv311/bin/activate
 
 # Install JAX with TPU support
 pip install -U pip
@@ -215,7 +215,7 @@ pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_
 '
 ```
 
-The script will create a venv in `~/.venv310`, so you will need to run the `. ~/.venv310/bin/activate` command when you activate a shell, or call the Python interpreter with `~/.venv310/bin/python`.
+The script will create a venv in `~/.venv311`, so you will need to run the `. ~/.venv311/bin/activate` command when you activate a shell, or call the Python interpreter with `~/.venv311/bin/python`.
 
 
 Clone this repository. In the root directory of this repository, run:
@@ -255,13 +255,13 @@ Wait for VSCode to be set up on the server. After it is finished, you can develo
 Run this command:
 
 ```sh
-~/.venv310/bin/python -c 'import jax; print(jax.devices())'  # should print TpuDevice
+~/.venv311/bin/python -c 'import jax; print(jax.devices())'  # should print TpuDevice
 ```
 
 For TPU Pods, run the following command locally:
 
 ```sh
-gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '~/.venv310/bin/python -c "import jax; jax.process_index() == 0 and print(jax.devices())"'
+gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '~/.venv311/bin/python -c "import jax; jax.process_index() == 0 and print(jax.devices())"'
 ```
 
 ## 7. JAX Basics
@@ -554,9 +554,9 @@ See also: §10.2.
 #!/bin/bash
 
 while read p; do
-  ssh "$p" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv310/bin/activate; $@" &
+  ssh "$p" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv311/bin/activate; $@" &
 done < external-ips.txt
-rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv310/bin/activate; "$@"
+rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv311/bin/activate; "$@"
 wait
 ```
 
@@ -615,7 +615,7 @@ unset LD_PRELOAD
 
 ```sh
 if ! pgrep -a -u $USER python ; then
-    killall -q -w -s SIGKILL ~/.venv310/bin/python
+    killall -q -w -s SIGKILL ~/.venv311/bin/python
 fi
 rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
 ```
