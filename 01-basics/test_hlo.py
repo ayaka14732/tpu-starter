@@ -1,3 +1,6 @@
+# TODO: The code no longer works. The new simplified approach is described in
+# https://github.com/google/jax/discussions/7068#discussioncomment-5442809
+
 import jax
 import jax.lax as lax
 from jax.lib import xla_bridge
