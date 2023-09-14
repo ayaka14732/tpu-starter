@@ -174,6 +174,199 @@ To SSH into one of the TPU Pods:
 gcloud alpha compute tpus tpu-vm ssh node-3 --zone us-central2-b --worker 0
 ```
 
+## 4.4 TPU Pods
+
+To create a TPU Pod,
+
+```
+until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-research --zone europe-west4-a --accelerator-type v3-256 --version v2-alpha-pod --network advanced --subnetwork advanced-subnet-for-europe-west4 ; do : ; done
+```
+
+## add new subnet
+
+## Add SSH Key to GCP
+
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+
+cat ~/.ssh/id_rsa.pub
+
+Compute Engine -> SSH Keys 加入
+
+## Jump server
+
+ssh into the first one
+
+then add all ips
+
+```
+172.21.12.2
+172.21.12.6
+172.21.12.12
+172.21.12.13
+172.21.12.16
+172.21.12.19
+172.21.12.29
+172.21.12.34
+172.21.12.38
+172.21.12.40
+172.21.12.42
+172.21.12.60
+172.21.12.65
+172.21.12.66
+172.21.12.72
+172.21.12.77
+172.21.12.79
+172.21.12.81
+172.21.12.86
+172.21.12.87
+172.21.12.102
+172.21.12.107
+172.21.12.111
+172.21.12.113
+172.21.12.117
+172.21.12.118
+172.21.12.122
+172.21.12.124
+172.21.12.126
+172.21.12.127
+172.21.12.194
+172.21.12.199
+```
+
+nano ~/.ssh/config
+
+```
+Host 172.21.12.*
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+```
+
+chmod 600 ~/.ssh/config
+
+選定一台機為 Host 0.
+
+podrun
+
+```bash
+#!/bin/bash
+
+PODIPS_FILE=~/podips.txt
+EXCLUDE_HOST=false
+DRY_RUN=false
+NO_CLEAN_UP=false
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --exclude-host) EXCLUDE_HOST=true;;
+        --dry-run) DRY_RUN=true;;
+        --no-clean-up) NO_CLEAN_UP=true;;
+        --) shift; break;;
+        *) echo "Unknown flag: $1"; exit 1;;
+    esac
+    shift
+done
+
+while read ip; do
+    [[ $ip =~ ^#.* ]] && continue
+
+    if $DRY_RUN; then
+        if $NO_CLEAN_UP; then
+            python3.11 -c "import os; print(os.sys.argv)" ssh "$ip" "cd $PWD; $@"
+        else
+            python3.11 -c "import os; print(os.sys.argv)" ssh "$ip" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; $@"
+        fi
+    else
+        if $NO_CLEAN_UP; then
+            ssh "$ip" "cd $PWD; $@" &
+        else
+            ssh "$ip" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; $@" &
+        fi
+    fi
+done < $PODIPS_FILE
+
+if ! $EXCLUDE_HOST; then
+    if $DRY_RUN; then
+        if $NO_CLEAN_UP; then
+            python3.11 -c "import os; print(os.sys.argv)" bash -c "cd $PWD; $@"
+        else
+            python3.11 -c "import os; print(os.sys.argv)" bash -c "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; $@"
+        fi
+    else
+        if $NO_CLEAN_UP; then
+            bash -c "cd $PWD; $@" &
+        else
+            bash -c "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; $@" &
+        fi
+    fi
+fi
+
+wait
+```
+
+```sh
+~/podrun -- '
+
+export DEBIAN_FRONTEND=noninteractive
+sudo apt-get update -y -qq
+sudo apt-get upgrade -y -qq
+sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
+
+sudo apt-get install -y -qq software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get install -y -qq python3.11-full python3.11-dev
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+sudo chsh $USER -s /usr/bin/zsh
+
+'
+```
+
+```
+/home/ayaka/podrun: eval: line 39: syntax error near unexpected token `&'
+/home/ayaka/podrun: eval: line 39: ` &'
+```
+
+```sh
+~/podrun --exclude-host -- 'DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common'
+sudo apt install -y -qq nfs-kernel-server
+sudo mkdir -p /nfs_share
+sudo chown -R nobody:nogroup /nfs_share/
+sudo chmod 777 /nfs_share/
+
+sudo nano /etc/exports
+/nfs_share  172.21.12.0/24(rw,sync,no_subtree_check)
+
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+
+~/podrun --exclude-host -- 'sudo mkdir -p /nfs_share && sudo mount 172.21.12.2:/nfs_share /nfs_share'
+
+~/podrun -- 'ln -sf /nfs_share ~/nfs_share'
+
+cd ~/nfs_share
+touch meow
+~/podrun -- 'ls ~/nfs_share/'
+```
+
+```sh
+python3.11 -m venv ~/nfs_share/venv
+. ~/nfs_share/venv/bin/activate
+
+pip install -U pip
+pip install -U wheel
+pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+pip install -U requests
+```
+
+```sh
+~/podrun -- '~/nfs_share/venv/bin/python -c "print(\"meow\")"'
+~/podrun -- 'sudo rm /tmp/libtpu_lockfile'
+~/podrun -- 'killall ~/nfs_share/venv/bin/python'
+~/podrun -- 'sudo rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs'
+~/podrun -- '~/nfs_share/venv/bin/python -c "import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())"'
+```
+
 ## 5. Environment Setup
 
 Save the following script to `setup.sh` and run the script.
