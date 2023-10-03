@@ -71,7 +71,7 @@ TPU 是一种专为机器学习设计的硬件。可以参看 Hugging Face Trans
 
 在前三个月，TRC program 完全不要钱，因为注册 Google Cloud 的前三个月会有免费试用的赠金。三个月之后，我每个月大概只花费 HK$13.95（约合 US$1.78）。这些钱是花在 TPU 服务器的网络访问上，而 TPU 设备本身是 TRC program 免费提供的。
 
-## 4. 创建 TPU VM 实例
+## 4. 使用 TPU VM
 
 ### 4.1. 创建 TPU VM
 
@@ -129,13 +129,116 @@ Host tpuv3-8-1
 
 其中，`tpuv3-8-1` 是可以随意起的名字，`User` 是上一步中 Google Cloud 创建的用户名，`Hostname` 是 TPU VM 的 IP 地址。
 
-### 4.3. 创建子网
+然后，在自己的电脑中使用如下命令 SSH 进入 TPU VM：
+
+```sh
+ssh tpuv3-8-1
+```
+
+其中，`tpuv3-8-1` 是在 `~/.ssh/config` 中起的名字。
+
+### 4.4. 验证 TPU VM 具有 TPU
+
+```sh
+ls /dev/accel*
+```
+
+如果出现如下输出：
+
+```
+/dev/accel0  /dev/accel1  /dev/accel2  /dev/accel
+```
+
+则表示 TPU VM 确实具有 TPU。
+
+### 4.5. 配置开发环境
+
+更新软件包：
+
+```sh
+sudo apt-get update -y -qq
+sudo apt-get upgrade -y -qq
+sudo apt-get install -y -qq golang neofetch zsh byobu
+```
+
+安装最新版 Python 3.11:
+
+```sh
+sudo apt-get install -y -qq software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get install -y -qq python3.11-full python3.11-dev
+```
+
+安装 Oh My Zsh：
+
+```sh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+sudo chsh $USER -s /usr/bin/zsh
+```
+
+创建 venv：
+
+```sh
+python3.11 -m venv $HOME/venv
+```
+
+激活 venv：
+
+```sh
+. $HOME/venv/bin/activate
+```
+
+在 venv 中安装 JAX：
+
+```sh
+pip install -U pip
+pip install -U wheel
+pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+```
+
+### 4.6. 验证 JAX 可以正常使用
+
+激活 venv 后，使用如下命令验证 JAX 可以正常使用：
+
+```sh
+python -c 'import jax; print(jax.devices())'
+```
+
+如果输出中含有 `TpuDevice`，则表明 JAX 可以正常使用。
+
+### 4.7. 使用 Byobu 确保程序持续运行
+
+许多教程使用在命令后添加 `&` 的方法使命令转到后台运行，以便在退出 SSH 后命令仍能继续执行。然而，这样做是非常初级的方法。正确的方法是使用 Byobu 这样的窗口管理器。
+
+要运行 Byobu，直接使用 `byobu` 命令，然后在打开的窗口中执行命令。要关闭窗口时，可以直接将电脑上当前窗口关闭，Byobu 将在服务器上继续运行。再次连接服务器时，使用 `byobu` 命令可以调出之前的窗口。
+
+Byobu 有许多高级的使用技巧，可以通过官方视频 [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus) 学习。
+
+### 4.8. 配置 VSCode Remote-SSH
+
+打开 VSCode，在左侧打开 Extensions 面板，搜索并安装 Remote - SSH。
+
+按 <kbd>F1</kbd> 键来打开命令面板。输入 ssh，点击 “Remote-SSH: Connect to Host...” 这一项，然后点击在 `~/.ssh/config` 中设置的服务器名字（例如 `tpuv3-8-1`）。等待 VSCode 在服务器上完成设置后，就可以使用 VSCode 在服务器上进行开发。
+
+![](assets/3.png)
+
+在电脑上可以使用命令快速打开服务器上的某个目录。例如：
+
+```sh
+code --remote ssh-remote+tpuv3-8-1 /home/ayaka/tpu-starter
+```
+
+这个命令会使用 VSCode 打开 `tpuv3-8-1` 上的 `/home/ayaka/tpu-starter` 这个目录。
+
+## 5. 使用 TPU Pod
+
+### 5.1. 创建子网
 
 要创建 TPU Pod，需要先创建子网。
 
 TODO: 加入创建子网的过程。
 
-### 4.4. 创建 TPU Pod
+### 5.2. 创建 TPU Pod
 
 按上述方法打开 Cloud Shell，使用如下命令创建 TPU v3-32 Pod：
 
@@ -145,9 +248,11 @@ until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-rese
 
 其中，`node-1` 是你想创建的 TPU VM 的名字，`--project` 是你的 Google Cloud project 的名字，`--network` 和 `--subnetwork` 是上一步中创建的网络和子网的名字。
 
-### 4.5. SSH 进入 TPU Pod
+### 5.3. SSH 进入 TPU Pod
 
-由于 TPU Pod 是多台主机，我们需要选定一台主机进行 SSH。此外，由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以通过 SSH 密钥连接的，所以我们可以任意选择一台主机进行 SSH。
+由于 TPU Pod 是多台主机，我们需要选定一台主机进行 SSH。此外，由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以通过 SSH 密钥连接的，所以我们可以任意选择一台主机进行 SSH。SSH 的方法与上述 TPU VM 相同。
+
+### 5.4. 配置 `podrun`
 
 SSH 进入后，需要作出如下设定：
 
@@ -170,51 +275,52 @@ Host 172.21.12.*
 chmod 600 ~/.ssh/config
 ```
 
+使用 `podrun` 命令：
 
 ```sh
-~/podrun -- '
-
-export DEBIAN_FRONTEND=noninteractive
-sudo apt-get update -y -qq
-sudo apt-get upgrade -y -qq
-sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
-
-sudo apt-get install -y -qq software-properties-common
-sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.11-full python3.11-dev
-
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-sudo chsh $USER -s /usr/bin/zsh
-
-'
+wget https://github.com/ayaka14732/llama-2-jax/blob/d8220b8c95789b14fe55417edc1d9482389aa2c4/podrun
+chmod +x podrun
+./podrun -iw -- echo meow
 ```
 
-```
-/home/ayaka/podrun: eval: line 39: syntax error near unexpected token `&'
-/home/ayaka/podrun: eval: line 39: ` &'
-```
+### 5.5. 配置 NFS
 
 ```sh
-~/podrun --exclude-host -- 'DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common'
+./podrun -- DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common
 sudo apt install -y -qq nfs-kernel-server
 sudo mkdir -p /nfs_share
-sudo chown -R nobody:nogroup /nfs_share/
-sudo chmod 777 /nfs_share/
+sudo chown -R nobody:nogroup /nfs_share
+sudo chmod 777 /nfs_share
+```
 
+修改 `/etc/exports`：
+
+```sh
 sudo nano /etc/exports
-/nfs_share  172.21.12.0/24(rw,sync,no_subtree_check)
+```
 
+加入：
+
+```
+/nfs_share  172.21.12.0/24(rw,sync,no_subtree_check)
+```
+
+执行：
+
+```sh
 sudo exportfs -a
 sudo systemctl restart nfs-kernel-server
 
-~/podrun --exclude-host -- 'sudo mkdir -p /nfs_share && sudo mount 172.21.12.2:/nfs_share /nfs_share'
-
-~/podrun -- 'ln -sf /nfs_share ~/nfs_share'
+./podrun -- sudo mkdir -p /nfs_share
+./podrun -- sudo mount 172.21.12.2:/nfs_share /nfs_share
+./podrun -- ln -sf /nfs_share ~/nfs_share
 
 cd ~/nfs_share
 touch meow
-~/podrun -- 'ls ~/nfs_share/'
+./podrun -iw -- ls ~/nfs_share
 ```
+
+### 5.6. 在 TPU Pod 中运行程序
 
 ```sh
 python3.11 -m venv ~/nfs_share/venv
@@ -232,96 +338,6 @@ pip install -U requests
 ~/podrun -- 'killall ~/nfs_share/venv/bin/python'
 ~/podrun -- 'sudo rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs'
 ~/podrun -- '~/nfs_share/venv/bin/python -c "import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())"'
-```
-
-## 5. Environment Setup
-
-Save the following script to `setup.sh` and run the script.
-
-```sh
-gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '
-
-# Confirm that the script is running on the host
-uname -a
-
-# Install common packages
-export DEBIAN_FRONTEND=noninteractive
-sudo apt-get update -y -qq
-sudo apt-get upgrade -y -qq
-sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
-
-# Install Python 3.11
-sudo apt-get install -y -qq software-properties-common
-sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.11-full python3.11-dev
-
-# Install Oh My Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-sudo chsh $USER -s /usr/bin/zsh
-
-# Change timezone
-# timedatectl list-timezones  # list timezones
-sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
-
-# Create venv
-python3.11 -m venv $HOME/.venv311
-. $HOME/.venv311/bin/activate
-
-# Install JAX with TPU support
-pip install -U pip
-pip install -U wheel
-pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
-
-'
-```
-
-The script will create a venv in `~/.venv311`, so you will need to run the `. ~/.venv311/bin/activate` command when you activate a shell, or call the Python interpreter with `~/.venv311/bin/python`.
-
-
-Clone this repository. In the root directory of this repository, run:
-
-```sh
-pip install -r requirements.txt
-```
-
-## 6. Development Environment Setup
-
-### 6.1. Set up Mosh and Byobu
-
-If you connect to the server directly with SSH, there is a risk of loss of connection. If this happens, the training script you are running in the foreground will be terminated.
-
-[Mosh](https://mosh.org/) and [Byobu](https://www.byobu.org/) are two programs to solve this problem. Byobu will ensure that the script continues to run on the server even if the connection is lost, while Mosh guarantees that the connection will not be lost. 
-
-Install [Mosh](https://mosh.org/#getting) on your local device, then log in into the server with:
-
-```sh
-mosh tpu1 -- byobu
-```
-
-You can learn more about Byobu from the video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
-
-### 6.2. Set up VSCode Remote-SSH
-
-Open VSCode. Open the 'Extensions' panel on the left. Search for 'Remote - SSH' and install.
-
-Press <kbd>F1</kbd> to open the command palette. Type 'ssh', then select 'Remote-SSH: Connect to Host...'. Input the server name you would like to connect and press Enter.
-
-Wait for VSCode to be set up on the server. After it is finished, you can develop on the server using VSCode.
-
-![](assets/3.png)
-
-### 6.3. How can I verify that the TPU is working?
-
-Run this command:
-
-```sh
-~/.venv311/bin/python -c 'import jax; print(jax.devices())'  # should print TpuDevice
-```
-
-For TPU Pods, run the following command locally:
-
-```sh
-gcloud alpha compute tpus tpu-vm ssh node-2 --zone us-central2-b --worker all --command '~/.venv311/bin/python -c "import jax; jax.process_index() == 0 and print(jax.devices())"'
 ```
 
 ## 7. JAX Basics
