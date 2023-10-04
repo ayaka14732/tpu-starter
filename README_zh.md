@@ -29,6 +29,7 @@
     * [4.6. 验证 JAX 可以正常使用](#46-验证-jax-可以正常使用)
     * [4.7. 使用 Byobu 确保程序持续运行](#47-使用-byobu-确保程序持续运行)
     * [4.8. 配置 VSCode Remote-SSH](#48-配置-vscode-remote-ssh)
+    * [4.9. 在 TPU VM 上使用 Jupyter Notebook](#49-在-tpu-vm-上使用-jupyter-notebook)
 * [5. 使用 TPU Pod](#5-使用-tpu-pod)
     * [5.1. 创建子网](#51-创建子网)
     * [5.2. 禁用 Cloud Logging](#52-禁用-cloud-logging)
@@ -56,11 +57,10 @@
     * [7.10. Use optimizers from Optax](#710-use-optimizers-from-optax)
     * [7.11. Use the cross-entropy loss implementation from Optax](#711-use-the-cross-entropy-loss-implementation-from-optax)
 * [8. How Can I...](#8-how-can-i)
-    * [8.1. Run Jupyter Notebook on TPU VM](#81-run-jupyter-notebook-on-tpu-vm)
-    * [8.2. Share files across multiple TPU VM instances](#82-share-files-across-multiple-tpu-vm-instances)
-    * [8.3. Monitor TPU usage](#83-monitor-tpu-usage)
-    * [8.4. Start a server on TPU VM](#84-start-a-server-on-tpu-vm)
-    * [8.5. Run separate processes on different TPU cores](#85-run-separate-processes-on-different-tpu-cores)
+    * [8.1. Share files across multiple TPU VM instances](#81-share-files-across-multiple-tpu-vm-instances)
+    * [8.2. Monitor TPU usage](#82-monitor-tpu-usage)
+    * [8.3. Start a server on TPU VM](#83-start-a-server-on-tpu-vm)
+    * [8.4. Run separate processes on different TPU cores](#84-run-separate-processes-on-different-tpu-cores)
 * [9. Common Gotchas](#9-common-gotchas)
     * [9.1. TPU VMs will be rebooted occasionally](#91-tpu-vms-will-be-rebooted-occasionally)
     * [9.2. One TPU core can only be used by one process at a time](#92-one-tpu-core-can-only-be-used-by-one-process-at-a-time)
@@ -288,6 +288,14 @@ code --remote ssh-remote+tpuv3-8-1 /home/ayaka/tpu-starter
 ```
 
 这个命令会使用 VSCode 打开 `tpuv3-8-1` 上的 `/home/ayaka/tpu-starter` 这个目录。
+
+### 4.9. 在 TPU VM 上使用 Jupyter Notebook
+
+在配置好 VSCode 的 Remote-SSH 后，就可以在 VSCode 中使用 Jupyter Notebook。效果如下：
+
+![](assets/6.png)
+
+这里有两个问题需要注意：第一是 Jupyter Notebook 右上角的 Kernel 要选择 venv 中的，也就是在前面的步骤中创建的 `~/venv/bin/python`；第二是首次运行时会提示安装 VSCode 的 Jupyter 扩展，并且在 venv 中安装 ipykernel，需要点击确定。
 
 ## 5. 使用 TPU Pod
 
@@ -581,21 +589,15 @@ See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
 ## 8. How Can I...
 
-### 8.1. Run Jupyter Notebook on TPU VM
-
-After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
-
-Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
-
-### 8.2. Share files across multiple TPU VM instances
+### 8.1. Share files across multiple TPU VM instances
 
 TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
-### 8.3. Monitor TPU usage
+### 8.2. Monitor TPU usage
 
 [jax-smi](https://github.com/ayaka14732/jax-smi)
 
-### 8.4. Start a server on TPU VM
+### 8.3. Start a server on TPU VM
 
 Example: Tensorboard
 
@@ -607,7 +609,7 @@ Port forwarding via SSH
 ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
 ```
 
-### 8.5. Run separate processes on different TPU cores
+### 8.4. Run separate processes on different TPU cores
 
 https://gist.github.com/skye/f82ba45d2445bb19d53545538754f9a3
 
