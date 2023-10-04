@@ -9,13 +9,71 @@
 
 关于 Google Cloud TPU 你想知道的所有事
 
+* [1. 社群](#1-社群)
+* [2. 简介](#2-简介)
+    * [2.1. 为什么我要用 TPU？](#21-为什么我要用-tpu)
+    * [2.2. 如何得到免费的 TPU？](#22-如何得到免费的-tpu)
+    * [2.3. 如果 TPU 这么好，为什么我很少见到别人使用？](#23-如果-tpu-这么好为什么我很少见到别人使用)
+    * [2.4. 我现在知道 TPU 很好了。我可以触摸 TPU 吗？](#24-我现在知道-tpu-很好了我可以触摸-tpu-吗)
+    * [2.5. 创建 TPU 实例是什么意思？我创建的到底是什么？](#25-创建-tpu-实例是什么意思我创建的到底是什么)
+* [3. TRC Program 简介](#3-trc-program-简介)
+    * [3.1. 如何申请 TRC program？](#31-如何申请-trc-program)
+    * [3.2. TRC program 真的不要钱吗？](#32-trc-program-真的不要钱吗)
+* [4. 使用 TPU VM](#4-使用-tpu-vm)
+    * [4.1. 创建 TPU VM](#41-创建-tpu-vm)
+    * [4.2. 将 SSH 公钥加入 Google Cloud](#42-将-ssh-公钥加入-google-cloud)
+    * [4.3. SSH 进入 TPU VM](#43-ssh-进入-tpu-vm)
+    * [4.4. 验证 TPU VM 具有 TPU](#44-验证-tpu-vm-具有-tpu)
+    * [4.5. 在 TPU VM 中配置开发环境](#45-在-tpu-vm-中配置开发环境)
+    * [4.6. 验证 JAX 可以正常使用](#46-验证-jax-可以正常使用)
+    * [4.7. 使用 Byobu 确保程序持续运行](#47-使用-byobu-确保程序持续运行)
+    * [4.8. 配置 VSCode Remote-SSH](#48-配置-vscode-remote-ssh)
+* [5. 使用 TPU Pod](#5-使用-tpu-pod)
+    * [5.1. 创建子网](#51-创建子网)
+    * [5.2. 禁用 Cloud Logging](#52-禁用-cloud-logging)
+    * [5.3. 创建 TPU Pod](#53-创建-tpu-pod)
+    * [5.4. SSH 进入 TPU Pod](#54-ssh-进入-tpu-pod)
+    * [5.5. 修改 Host 0 上的 SSH 配置文件](#55-修改-host-0-上的-ssh-配置文件)
+    * [5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中](#56-将-host-0-的-ssh-公钥加入到所有-host-中)
+    * [5.7. 配置 podrun 命令：](#57-配置-podrun-命令)
+    * [5.8. 配置 NFS](#58-配置-nfs)
+    * [5.9. 在 TPU Pod 中配置开发环境](#59-在-tpu-pod-中配置开发环境)
+    * [5.10. 验证 JAX 可以正常使用](#510-验证-jax-可以正常使用)
+* [6. TPU Best Practices](#6-tpu-best-practices)
+    * [6.1. Prefer Google Cloud Platform to Google Colab](#61-prefer-google-cloud-platform-to-google-colab)
+    * [6.2. Prefer TPU VM to TPU node](#62-prefer-tpu-vm-to-tpu-node)
+* [7. JAX Best Practices](#7-jax-best-practices)
+    * [7.1. Import convention](#71-import-convention)
+    * [7.2. Manage random keys in JAX](#72-manage-random-keys-in-jax)
+    * [7.3. Serialize model parameters](#73-serialize-model-parameters)
+    * [7.4. Conversion between NumPy arrays and JAX arrays](#74-conversion-between-numpy-arrays-and-jax-arrays)
+    * [7.5. Conversion between PyTorch tensors and JAX arrays](#75-conversion-between-pytorch-tensors-and-jax-arrays)
+    * [7.6. Type annotation](#76-type-annotation)
+    * [7.7. Check if an array is either a NumPy array or a JAX array](#77-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
+    * [7.8. Get the shapes of all parameters in a nested dictionary](#78-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
+    * [7.9. The correct way to generate random numbers on CPU](#79-the-correct-way-to-generate-random-numbers-on-cpu)
+    * [7.10. Use optimizers from Optax](#710-use-optimizers-from-optax)
+    * [7.11. Use the cross-entropy loss implementation from Optax](#711-use-the-cross-entropy-loss-implementation-from-optax)
+* [8. How Can I...](#8-how-can-i)
+    * [8.1. Run Jupyter Notebook on TPU VM](#81-run-jupyter-notebook-on-tpu-vm)
+    * [8.2. Share files across multiple TPU VM instances](#82-share-files-across-multiple-tpu-vm-instances)
+    * [8.3. Monitor TPU usage](#83-monitor-tpu-usage)
+    * [8.4. Start a server on TPU VM](#84-start-a-server-on-tpu-vm)
+    * [8.5. Run separate processes on different TPU cores](#85-run-separate-processes-on-different-tpu-cores)
+* [9. Common Gotchas](#9-common-gotchas)
+    * [9.1. TPU VMs will be rebooted occasionally](#91-tpu-vms-will-be-rebooted-occasionally)
+    * [9.2. One TPU core can only be used by one process at a time](#92-one-tpu-core-can-only-be-used-by-one-process-at-a-time)
+    * [9.3. TCMalloc breaks several programs](#93-tcmalloc-breaks-several-programs)
+    * [9.4. libtpu.so already in used by another process](#94-libtpuso-already-in-used-by-another-process)
+    * [9.5. JAX does not support the multiprocessing fork strategy](#95-jax-does-not-support-the-multiprocessing-fork-strategy)
+
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
 这个项目是受到 [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-faq) 的启发创建的。Cloud Run FAQ 是社群维护的关于另一个谷歌产品的知识仓库。
 
 ## 1. 社群
 
-谷歌官方 Discord 已经建立了 #tpu-research-cloud channel 频道，参见 https://twitter.com/googledeveurope/status/1583032777984835585。
+谷歌官方 Discord 已经建立了 `#tpu-research-cloud` channel 频道，参见 https://twitter.com/googledeveurope/status/1583032777984835585。
 
 ## 2. 简介
 
@@ -151,7 +209,7 @@ ls /dev/accel*
 
 则表示 TPU VM 确实具有 TPU。
 
-### 4.5. 配置开发环境
+### 4.5. 在 TPU VM 中配置开发环境
 
 更新软件包：
 
@@ -234,13 +292,17 @@ code --remote ssh-remote+tpuv3-8-1 /home/ayaka/tpu-starter
 
 ### 5.1. 创建子网
 
-要创建 TPU Pod，需要先创建子网。
+要创建 TPU Pod，需要先创建一个新的 VPC 网络，并在该网络的对应区域（例如 `europe-west4-a`）中创建子网。
 
-TODO: 加入创建子网的过程。
+TODO: Purpose?
 
-### 5.2. 创建 TPU Pod
+### 5.2. 禁用 Cloud Logging
 
-按上述方法打开 Cloud Shell，使用如下命令创建 TPU v3-32 Pod：
+TODO: Reason? Steps?
+
+### 5.3. 创建 TPU Pod
+
+按前文创建 TPU VM 时使用的方法打开 Cloud Shell，使用如下命令创建 TPU v3-32 Pod：
 
 ```sh
 until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-research --zone europe-west4-a --accelerator-type v3-32 --version v2-alpha-pod --network advanced --subnetwork advanced-subnet-for-europe-west4 ; do : ; done
@@ -248,13 +310,13 @@ until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-rese
 
 其中，`node-1` 是你想创建的 TPU VM 的名字，`--project` 是你的 Google Cloud project 的名字，`--network` 和 `--subnetwork` 是上一步中创建的网络和子网的名字。
 
-### 5.3. SSH 进入 TPU Pod
+### 5.4. SSH 进入 TPU Pod
 
-由于 TPU Pod 是多台主机，我们需要选定一台主机进行 SSH。此外，由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以通过 SSH 密钥连接的，所以我们可以任意选择一台主机进行 SSH。SSH 的方法与上述 TPU VM 相同。
+由于 TPU Pod 是多台主机，我们需要选定一台主机，设其为 Host 0，然后 SSH 进入 Host 0 并执行操作。由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以直接通过 SSH 密钥连接的，所以我们可以设任意一台主机为 Host 0。SSH 进入 Host 0 的方法与上述 TPU VM 相同。
 
-### 5.4. 配置 `podrun`
+### 5.5. 修改 Host 0 上的 SSH 配置文件
 
-SSH 进入后，需要作出如下设定：
+SSH 进入 Host 0 后，需要作出如下设定：
 
 ```sh
 nano ~/.ssh/config
@@ -269,21 +331,53 @@ Host 172.21.12.*
     LogLevel ERROR
 ```
 
-然后执行：
+其中，`172.21.12.*` 是由前面的步骤中创建的子网的 IP 地址范围决定的。这里使用 `172.21.12.*`，是因为在前面创建子网时，指定了 IP 地址范围为 172.21.12.0/24。
+
+这样做是因为 ssh 的 `known_hosts` 是为了防止中间人攻击而设置的，而我们在这里使用的是内网环境，不需要防止中间人攻击，也就不需要这个文件，因此我们将其指定为 `/dev/null`。此外，如果有了 `known_hosts`，在第一次连接要手动确认服务器的指纹，在内网环境中这样做是没有必要的，而且不利于程序的自动化。
+
+然后执行以下命令修改这个配置文件的权限。如果不修改，则配置文件不会生效：
 
 ```sh
 chmod 600 ~/.ssh/config
 ```
 
-使用 `podrun` 命令：
+### 5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中
+
+首先按照上面的步骤在 Host 0 上生成密钥对，然后将生成的公钥加入 Google Cloud 的 SSH keys 中，这个公钥就会被自动传播到所有 Host 中。
+
+### 5.7. 配置 `podrun` 命令：
+
+`podrun` 命令是一个正在开发中的工具，达到的效果是在 Host 0 上执行命令，可以通过 SSH 在所有 Host 上执行。
+
+下载 `podrun`：
 
 ```sh
-wget https://github.com/ayaka14732/llama-2-jax/blob/d8220b8c95789b14fe55417edc1d9482389aa2c4/podrun
+wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/d8220b8c95789b14fe55417edc1d9482389aa2c4/podrun
 chmod +x podrun
+```
+
+将其他 Host 的内网 IP 地址保存在 `~/podips.txt` 中（每行一个）。编辑 `~/podips.txt` 可以使用如下命令：
+
+```sh
+nano ~/podips.txt
+```
+
+进入 venv 并安装 Paramiko：
+
+```sh
+. ~/venv/bin/activate
+pip install paramiko
+```
+
+使用 `podrun` 在所有主机上输出猫叫：
+
+```sh
 ./podrun -iw -- echo meow
 ```
 
-### 5.5. 配置 NFS
+### 5.8. 配置 NFS
+
+安装 NFS 服务器和客户端：
 
 ```sh
 ./podrun -- DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common
@@ -317,126 +411,24 @@ sudo systemctl restart nfs-kernel-server
 
 cd ~/nfs_share
 touch meow
-./podrun -iw -- ls ~/nfs_share
+./podrun -iw -- ls ~/nfs_share/meow
 ```
 
-### 5.6. 在 TPU Pod 中运行程序
+### 5.9. 在 TPU Pod 中配置开发环境
+
+TODO: 参考上文在 TPU VM 中配置开发环境的步骤，但是每个命令都要使用 `podrun -iw --` 在所有 Host 上运行。
+
+### 5.10. 验证 JAX 可以正常使用
 
 ```sh
-python3.11 -m venv ~/nfs_share/venv
-. ~/nfs_share/venv/bin/activate
-
-pip install -U pip
-pip install -U wheel
-pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
-pip install -U requests
+~/podrun -icw -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
 ```
 
-```sh
-~/podrun -- '~/nfs_share/venv/bin/python -c "print(\"meow\")"'
-~/podrun -- 'sudo rm /tmp/libtpu_lockfile'
-~/podrun -- 'killall ~/nfs_share/venv/bin/python'
-~/podrun -- 'sudo rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs'
-~/podrun -- '~/nfs_share/venv/bin/python -c "import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())"'
-```
+如果输出中含有 `TpuDevice`，则表明 JAX 可以正常使用。
 
-## 7. JAX Basics
+## 6. TPU Best Practices
 
-### 7.1. Why JAX?
-
-JAX is the next generation of deep learning libraries, with excellent support for TPU. To get started quickly with JAX, you can read the official [tutorial](https://jax.readthedocs.io/en/latest/jax-101/index.html).
-
-### 7.2. Parallelism
-
-#### 7.2.1. Basics of `jax.pmap`
-
-There are four key points here.
-
-1\. `params` and `opt_state` should be replicated across the devices:
-
-```python
-replicated_params = jax.device_put_replicated(params, jax.devices())
-```
-
-2\. `data` and `labels` should be split to the devices:
-
-```python
-n_devices = jax.device_count()
-batch_size, *data_shapes = data.shape
-assert batch_size % n_devices == 0, 'The data cannot be split evenly to the devices'
-data = data.reshape(n_devices, batch_size // n_devices, *data_shapes)
-```
-
-3\. Decorate the target function with `jax.pmap`:
-
-```
-@partial(jax.pmap, axis_name='num_devices')
-```
-
-4\. In the `loss` function, use `jax.lax.pmean` to calculate the mean value across devices:
-
-```python
-grads = jax.lax.pmean(grads, axis_name='num_devices')  # calculate mean across devices
-```
-
-See [01-basics/test_pmap.py](01-basics/test_pmap.py) for a complete working example.
-
-See also <https://jax.readthedocs.io/en/latest/jax-101/06-parallelism.html#example>.
-
-#### 7.2.2. What if I want to have randomness in the update function?
-
-```python
-key, subkey = (lambda keys: (keys[0], keys[1:]))(rand.split(key, num=9))
-```
-
-Note that you cannot use the regular way to split the keys:
-
-```python
-key, *subkey = rand.split(key, num=9)
-```
-
-Because in this way, `subkey` is a list rather than an array.
-
-#### 7.2.3. What if I want to use optax optimizers in the update function?
-
-`opt_state` should be replicated as well.
-
-### 7.3. Freeze certain model parameters
-
-Use [`optax.set_to_zero`](https://optax.readthedocs.io/en/latest/api.html#optax.set_to_zero) together with [`optax.multi_transform`](https://optax.readthedocs.io/en/latest/api.html#optax.multi_transform).
-
-```python
-params = {
-    'a': { 'x1': ..., 'x2': ... },
-    'b': { 'x1': ..., 'x2': ... },
-}
-
-param_labels = {
-    'a': { 'x1': 'freeze', 'x2': 'train' },
-    'b': 'train',
-}
-
-optimizer_scheme = {
-    'train': optax.adam(...),
-    'freeze': optax.set_to_zero(),
-}
-
-optimizer = optax.multi_transform(optimizer_scheme, param_labels)
-```
-
-See [Freeze Parameters Example](https://colab.research.google.com/drive/1-qLk5l09bq1NxZwwbu_yDk4W7da5TnFx) for details.
-
-### 7.4. Integration with Hugging Face Transformers
-
-[Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
-
-### 7.5. What is `a[:, None]`?
-
-[`np.newaxis`](https://numpy.org/doc/stable/reference/constants.html#numpy.newaxis)
-
-## 8. TPU Best Practices
-
-### 8.1. Prefer Google Cloud Platform to Google Colab
+### 6.1. Prefer Google Cloud Platform to Google Colab
 
 [Google Colab](https://colab.research.google.com/) only provides TPU v2-8 devices, while on [Google Cloud Platform](https://cloud.google.com/tpu) you can select TPU v2-8 and TPU v3-8.
 
@@ -454,13 +446,13 @@ devices = jax.devices()
 print(devices)  # should print TpuDevice
 ```
 
-### 8.2. Prefer TPU VM to TPU node
+### 6.2. Prefer TPU VM to TPU node
 
 When you are creating a TPU instance, you need to choose between TPU VM and TPU node. Always prefer TPU VM because it is the new architecture in which TPU devices are connected to the host VM directly. This will make it easier to set up the TPU device.
 
-## 9. JAX Best Practices
+## 7. JAX Best Practices
 
-### 9.1. Import convention
+### 7.1. Import convention
 
 You may see two different kind of import conventions. One is to import `jax.numpy` as `np` and import the original numpy as `onp`. Another one is to import `jax.numpy` as `jnp` and leave original numpy as `np`.
 
@@ -470,7 +462,7 @@ On 5 Nov 2020, Niru Maheswaranathan said in [a tweet](https://twitter.com/niru_m
 
 We can conclude that the new convention is to import `jax.numpy` as `jnp`.
 
-### 9.2. Manage random keys in JAX
+### 7.2. Manage random keys in JAX
 
 The regular way is this:
 
@@ -481,7 +473,7 @@ print(subkey[1])
 print(subkey[2])
 ```
 
-### 9.3. Serialize model parameters
+### 7.3. Serialize model parameters
 
 Normally, the model parameters are represented by a nested dictionary like this:
 
@@ -501,7 +493,7 @@ Normally, the model parameters are represented by a nested dictionary like this:
 
 You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
 
-### 9.4. Conversion between NumPy arrays and JAX arrays
+### 7.4. Conversion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -516,7 +508,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 9.5. Conversion between PyTorch tensors and JAX arrays
+### 7.5. Conversion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
@@ -547,23 +539,23 @@ UserWarning: The given NumPy array is not writable, and PyTorch does not support
 
 If you need writable tensors, you can use `onp.array` instead of `onp.asarray` to make a copy of the original array.
 
-### 9.6. Type annotation
+### 7.6. Type annotation
 
 [google/jaxtyping](https://github.com/google/jaxtyping)
 
-### 9.7. Check if an array is either a NumPy array or a JAX array
+### 7.7. Check if an array is either a NumPy array or a JAX array
 
 ```python
 isinstance(a, (np.ndarray, onp.ndarray))
 ```
 
-### 9.8. Get the shapes of all parameters in a nested dictionary
+### 7.8. Get the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-### 9.9. The correct way to generate random numbers on CPU
+### 7.9. The correct way to generate random numbers on CPU
 
 Use the [jax.default_device()](https://jax.readthedocs.io/en/latest/_autosummary/jax.default_device.html) context manager:
 
@@ -580,29 +572,29 @@ with jax.default_device(device_cpu):
 
 See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
-### 9.10. Use optimizers from Optax
+### 7.10. Use optimizers from Optax
 
-### 9.11. Use the cross-entropy loss implementation from Optax
+### 7.11. Use the cross-entropy loss implementation from Optax
 
 `optax.softmax_cross_entropy_with_integer_labels`
 
-## 10. How Can I...
+## 8. How Can I...
 
-### 10.1. Run Jupyter Notebook on TPU VM
+### 8.1. Run Jupyter Notebook on TPU VM
 
 After setting up Remote-SSH, you can work with Jupyter notebook files in VSCode.
 
 Alternatively, you can run a regular Jupyter Notebook server on the TPU VM, forward the port to your PC and connect to it. However, you should prefer VSCode because it is more powerful, offers better integration with other tools and is easier to set up.
 
-### 10.2. Share files across multiple TPU VM instances
+### 8.2. Share files across multiple TPU VM instances
 
 TPU VM instances in the same zone are connected with internal IPs, so you can [create a shared file system using NFS](https://tecadmin.net/how-to-install-and-configure-an-nfs-server-on-ubuntu-20-04/).
 
-### 10.3. Monitor TPU usage
+### 8.3. Monitor TPU usage
 
 [jax-smi](https://github.com/ayaka14732/jax-smi)
 
-### 10.4. Start a server on TPU VM
+### 8.4. Start a server on TPU VM
 
 Example: Tensorboard
 
@@ -614,33 +606,13 @@ Port forwarding via SSH
 ssh -C -N -L 127.0.0.1:6006:127.0.0.1:6006 tpu1
 ```
 
-### 10.5. Run separate processes on different TPU cores
+### 8.5. Run separate processes on different TPU cores
 
 https://gist.github.com/skye/f82ba45d2445bb19d53545538754f9a3
 
-## 11. Working With Pods
+## 9. Common Gotchas
 
-### 11.1. Create a shared directory using NFS
-
-See also: §10.2.
-
-### 11.2. Run a command simultaneously on all TPU Pods
-
-```sh
-#!/bin/bash
-
-while read p; do
-  ssh "$p" "cd $PWD; rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv311/bin/activate; $@" &
-done < external-ips.txt
-rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs; . ~/.venv311/bin/activate; "$@"
-wait
-```
-
-See <https://github.com/ayaka14732/bart-base-jax/blob/f3ccef7b32e2aa17cde010a654eff1bebef933a4/startpod>.
-
-## 12. Common Gotchas
-
-### 12.1. TPU VMs will be rebooted occasionally
+### 9.1. TPU VMs will be rebooted occasionally
 
 As of 24 Oct 2022, the TPU VMs will be rebooted occasionally if there is a maintenance event.
 
@@ -653,7 +625,7 @@ We can save the model parameters, optimiser states and other useful data occasio
 
 We should use `gcloud` command instead of connect directly to it with SSH. If we have to use SSH (e.g. if we want to use VSCode, SSH is the only choice), we need to manually change the target IP address.
 
-### 12.2. One TPU core can only be used by one process at a time
+### 9.2. One TPU core can only be used by one process at a time
 
 See also: §10.5.
 
@@ -663,7 +635,7 @@ Unlike GPU, you will get an error if you run two processes on TPU at a time:
 I0000 00:00:1648534265.148743  625905 tpu_initializer_helper.cc:94] libtpu.so already in use by another process. Run "$ sudo lsof -w /dev/accel0" to figure out which process is using the TPU. Not attempting to load libtpu.so in this process.
 ```
 
-### 12.3. TCMalloc breaks several programs
+### 9.3. TCMalloc breaks several programs
 
 [TCMalloc](https://github.com/google/tcmalloc) is Google's customized memory allocation library. On TPU VM, `LD_PRELOAD` is set to use TCMalloc by default:
 
@@ -687,7 +659,7 @@ If you encounter problems related to TCMalloc, you can disable it in the current
 unset LD_PRELOAD
 ```
 
-### 12.4. `libtpu.so` already in used by another process
+### 9.4. `libtpu.so` already in used by another process
 
 ```sh
 if ! pgrep -a -u $USER python ; then
@@ -698,7 +670,7 @@ rm -rf /tmp/libtpu_lockfile /tmp/tpu_logs
 
 See also <https://github.com/google/jax/issues/9220#issuecomment-1015940320>.
 
-### 12.5. JAX does not support the multiprocessing `fork` strategy
+### 9.5. JAX does not support the multiprocessing `fork` strategy
 
 Use the `spawn` or `forkserver` strategies.
 
