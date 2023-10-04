@@ -11,10 +11,10 @@ sudo apt-get update -y -qq
 sudo apt-get upgrade -y -qq
 sudo apt-get install -y -qq golang neofetch zsh mosh byobu aria2
 
-# Install Python 3.10
+# Install Python 3.11
 sudo apt-get install -y -qq software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.10-full python3.10-dev
+sudo apt-get install -y -qq python3.11-full python3.11-dev
 
 # Install Oh My Zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -23,10 +23,6 @@ sudo chsh $USER -s /usr/bin/zsh
 # Change timezone
 # timedatectl list-timezones  # list timezones
 sudo timedatectl set-timezone Asia/Hong_Kong  # change to your timezone
-
-# Create venv
-python3.10 -m venv $HOME/.venv310
-. $HOME/.venv310/bin/activate
 
 # Install JAX with TPU support
 pip install -U pip

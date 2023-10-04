@@ -2,44 +2,44 @@
 
 <h4 align="center">
     <p>
-        <b>English</b> |
-        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a> |
-        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_zh.md">中文</a>
+        <b>中文</b> |
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README.md">English</a> |
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a>
     <p>
 </h4>
 
-Everything you want to know about Google Cloud TPU
+关于 Google Cloud TPU 你想知道的所有事
 
-* [1. Community](#1-community)
-* [2. Introduction to TPU](#2-introduction-to-tpu)
-    * [2.1. Why TPU?](#21-why-tpu)
-    * [2.2. How can I get free access to TPU?](#22-how-can-i-get-free-access-to-tpu)
-    * [2.3. If TPU is so good, why do I rarely see others using it?](#23-if-tpu-is-so-good-why-do-i-rarely-see-others-using-it)
-    * [2.4. I know TPU is great now. Can I touch a TPU?](#24-i-know-tpu-is-great-now-can-i-touch-a-tpu)
-    * [2.5. What does it mean to create a TPU instance? What do I actually get?](#25-what-does-it-mean-to-create-a-tpu-instance-what-do-i-actually-get)
-* [3. Introduction to the TRC Program](#3-introduction-to-the-trc-program)
-    * [3.1. How do I apply for the TRC program?](#31-how-do-i-apply-for-the-trc-program)
-    * [3.2. Is it really free?](#32-is-it-really-free)
-* [4. Using TPU VM](#4-using-tpu-vm)
-    * [4.1. Create a TPU VM](#41-create-a-tpu-vm)
-    * [4.2. Add an SSH public key to Google Cloud](#42-add-an-ssh-public-key-to-google-cloud)
-    * [4.3. SSH into TPU VM](#43-ssh-into-tpu-vm)
-    * [4.4. Verify that TPU VM has TPU](#44-verify-that-tpu-vm-has-tpu)
-    * [4.5. Setting up the development environment in TPU VM](#45-setting-up-the-development-environment-in-tpu-vm)
-    * [4.6. Verify JAX is working properly](#46-verify-jax-is-working-properly)
-    * [4.7. Using Byobu to ensure continuous program execution](#47-using-byobu-to-ensure-continuous-program-execution)
-    * [4.8. Configure VSCode Remote-SSH](#48-configure-vscode-remote-ssh)
-* [5. Using TPU Pod](#5-using-tpu-pod)
-    * [5.1. Create a subnet](#51-create-a-subnet)
-    * [5.2. Disable Cloud Logging](#52-disable-cloud-logging)
-    * [5.3. Create TPU Pod](#53-create-tpu-pod)
-    * [5.4. SSH into TPU Pod](#54-ssh-into-tpu-pod)
-    * [5.5. Modify the SSH configuration file on Host 0](#55-modify-the-ssh-configuration-file-on-host-0)
-    * [5.6. Add the SSH public key of Host 0 to all hosts](#56-add-the-ssh-public-key-of-host-0-to-all-hosts)
-    * [5.7. Configure the podrun command](#57-configure-the-podrun-command)
-    * [5.8. Configure NFS](#58-configure-nfs)
-    * [5.9. Setting up the development environment in TPU Pod](#59-setting-up-the-development-environment-in-tpu-pod)
-    * [5.10. Verify JAX is working properly](#510-verify-jax-is-working-properly)
+* [1. 社群](#1-社群)
+* [2. 简介](#2-简介)
+    * [2.1. 为什么我要用 TPU？](#21-为什么我要用-tpu)
+    * [2.2. 如何得到免费的 TPU？](#22-如何得到免费的-tpu)
+    * [2.3. 如果 TPU 这么好，为什么我很少见到别人使用？](#23-如果-tpu-这么好为什么我很少见到别人使用)
+    * [2.4. 我现在知道 TPU 很好了。我可以触摸 TPU 吗？](#24-我现在知道-tpu-很好了我可以触摸-tpu-吗)
+    * [2.5. 创建 TPU 实例是什么意思？我创建的到底是什么？](#25-创建-tpu-实例是什么意思我创建的到底是什么)
+* [3. TRC Program 简介](#3-trc-program-简介)
+    * [3.1. 如何申请 TRC program？](#31-如何申请-trc-program)
+    * [3.2. TRC program 真的不要钱吗？](#32-trc-program-真的不要钱吗)
+* [4. 使用 TPU VM](#4-使用-tpu-vm)
+    * [4.1. 创建 TPU VM](#41-创建-tpu-vm)
+    * [4.2. 将 SSH 公钥加入 Google Cloud](#42-将-ssh-公钥加入-google-cloud)
+    * [4.3. SSH 进入 TPU VM](#43-ssh-进入-tpu-vm)
+    * [4.4. 验证 TPU VM 具有 TPU](#44-验证-tpu-vm-具有-tpu)
+    * [4.5. 在 TPU VM 中配置开发环境](#45-在-tpu-vm-中配置开发环境)
+    * [4.6. 验证 JAX 可以正常使用](#46-验证-jax-可以正常使用)
+    * [4.7. 使用 Byobu 确保程序持续运行](#47-使用-byobu-确保程序持续运行)
+    * [4.8. 配置 VSCode Remote-SSH](#48-配置-vscode-remote-ssh)
+* [5. 使用 TPU Pod](#5-使用-tpu-pod)
+    * [5.1. 创建子网](#51-创建子网)
+    * [5.2. 禁用 Cloud Logging](#52-禁用-cloud-logging)
+    * [5.3. 创建 TPU Pod](#53-创建-tpu-pod)
+    * [5.4. SSH 进入 TPU Pod](#54-ssh-进入-tpu-pod)
+    * [5.5. 修改 Host 0 上的 SSH 配置文件](#55-修改-host-0-上的-ssh-配置文件)
+    * [5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中](#56-将-host-0-的-ssh-公钥加入到所有-host-中)
+    * [5.7. 配置 podrun 命令：](#57-配置-podrun-命令)
+    * [5.8. 配置 NFS](#58-配置-nfs)
+    * [5.9. 在 TPU Pod 中配置开发环境](#59-在-tpu-pod-中配置开发环境)
+    * [5.10. 验证 JAX 可以正常使用](#510-验证-jax-可以正常使用)
 * [6. TPU Best Practices](#6-tpu-best-practices)
     * [6.1. Prefer Google Cloud Platform to Google Colab](#61-prefer-google-cloud-platform-to-google-colab)
     * [6.2. Prefer TPU VM to TPU node](#62-prefer-tpu-vm-to-tpu-node)
@@ -70,115 +70,115 @@ Everything you want to know about Google Cloud TPU
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
-This project was inspired by [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-faq), a community-maintained knowledge base about another Google Cloud product.
+这个项目是受到 [Cloud Run FAQ](https://github.com/ahmetb/cloud-run-faq) 的启发创建的。Cloud Run FAQ 是社群维护的关于另一个谷歌产品的知识仓库。
 
-## 1. Community
+## 1. 社群
 
-Google's official Discord has established the `#tpu-research-cloud` channel, as mentioned at https://twitter.com/googledeveurope/status/1583032777984835585.
+谷歌官方 Discord 已经建立了 `#tpu-research-cloud` channel 频道，参见 https://twitter.com/googledeveurope/status/1583032777984835585。
 
-## 2. Introduction to TPU
+## 2. 简介
 
-### 2.1. Why TPU?
+### 2.1. 为什么我要用 TPU？
 
-**TL;DR**: TPU is to GPU as GPU is to CPU.
+**一句话介绍**：TPU 与 GPU 的关系就像 GPU 与 CPU 的关系。
 
-TPU is hardware specifically designed for machine learning. For performance comparisons, see [Performance Comparison](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation) in Hugging Face Transformers:
+TPU 是一种专为机器学习设计的硬件。可以参看 Hugging Face Transformers 中的[性能比较](https://github.com/huggingface/transformers/blob/main/examples/flax/language-modeling/README.md#runtime-evaluation)。
 
 ![](assets/5.png)
 
-Moreover, Google's [TRC program](https://sites.research.google/trc/about/) offers free TPU resources to researchers. If you've ever wondered what computing resources to use to train a model, you should try the TRC program, as it's the best option I know of. More information about the TRC program is provided below.
+此外，谷歌的 [TRC program](https://sites.research.google/trc/about/) 为研究者提供免费的 TPU 资源。如果你曾经想过用什么计算资源训练模型，你就应该试试 TRC program，因为这是我所知道的最佳选择。下方有更多关于 TRC program 的介绍。
 
-### 2.2. How can I get free access to TPU?
+### 2.2. 如何得到免费的 TPU？
 
-Researchers can apply to the [TRC program](https://sites.research.google/trc/about/) to obtain free TPU resources.
+研究者可以申请 [TRC program](https://sites.research.google/trc/about/)，从而得到免费的 TPU 资源。
 
-### 2.3. If TPU is so good, why do I rarely see others using it?
+### 2.3. 如果 TPU 这么好，为什么我很少见到别人使用？
 
-If you want to use PyTorch, TPU may not be suitable for you. TPU is poorly supported by PyTorch. In one of my past experiments using PyTorch, a batch took 14 seconds on a CPU but required 4 hours on a TPU. Twitter user @mauricetpunkt also thinks that [PyTorch's performance on TPUs is bad](https://twitter.com/mauricetpunkt/status/1506944350281945090).
+如果你要使用 PyTorch，就无法利用 TPU。PyTorch 对 TPU 的支持不好。在我过去的一项实验中，我使用 PyTorch，一个 batch 在 CPU 需要 14 秒，而在 TPU 上却需要 4 小时。Twitter 用户 @mauricetpunkt 也认为 [TPU 上 PyTorch 的性能不理想](https://twitter.com/mauricetpunkt/status/1506944350281945090)。然而，事物是会变化的，你可以关注 [pytorch/xla](https://github.com/pytorch/xla) 这个项目以获得 PyTorch 对 TPU 的支持的最新情况。
 
-In conclusion, if you want to do deep learning with TPU, you should use JAX as your deep learning framework. In fact, many popular deep learning libraries support JAX. For instance:
+综上所述，如果你想用 TPU 做深度学习，你应该使用 JAX 作为深度学习框架。事实上，许多流行的深度学习相关的库是支持 JAX 的。例如：
 
-- [Many models in Hugging Face Transformers support JAX](https://huggingface.co/docs/transformers/index#supported-frameworks)
-- [Keras supports using JAX as a backend](https://keras.io/keras_core/announcement/)
-- SkyPilot has [examples using Flax](https://github.com/skypilot-org/skypilot/blob/master/examples/tpu/tpuvm_mnist.yaml)
+- [Hugging Face Transformers 中的许多模型支持 JAX](https://huggingface.co/docs/transformers/index#supported-frameworks)
+- [Keras 支持使用 JAX 作为后端](https://keras.io/keras_core/announcement/)
+- SkyPilot 有[使用 Flax 的例子](https://github.com/skypilot-org/skypilot/blob/master/examples/tpu/tpuvm_mnist.yaml)
 
-Furthermore, JAX's design is very clean and has been widely appreciated. For instance, JAX is my favorite open-source project. I've tweeted about [how JAX is better than PyTorch](https://twitter.com/ayaka14732/status/1688194164033462272).
+此外，JAX 的设计非常清晰，受到了很多人的喜爱。例如，我最喜欢的开源项目就是 JAX。我在 Twitter 上发布过 [JAX 优于 PyTorch 的地方](https://twitter.com/ayaka14732/status/1688194164033462272)。
 
-### 2.4. I know TPU is great now. Can I touch a TPU?
+### 2.4. 我现在知道 TPU 很好了。我可以触摸 TPU 吗？
 
-Unfortunately, we generally can't physically touch a real TPU. TPUs are meant to be accessed via Google Cloud services.
+然而，我们一般不能触摸真正的 TPU。TPU 只能通过 Google 云服务访问。
 
-In some exhibitions, TPUs are [displayed for viewing](https://twitter.com/walkforhours/status/1696654844134822130), which might be the closest you can get to physically touching one.
+在一些展览中，TPU 会被[摆在展柜中供人观赏](https://twitter.com/walkforhours/status/1696654844134822130)，这大概是与触摸 TPU 最接近的活动。
 
-Perhaps only by becoming a Google Cloud Infrastructure Engineer can one truly feel the touch of a TPU.
+或许应聘成为 Google Cloud Infrastructure Engineer 才能真正触摸 TPU 吧。
 
-### 2.5. What does it mean to create a TPU instance? What do I actually get?
+### 2.5. 创建 TPU 实例是什么意思？我创建的到底是什么？
 
-After creating a TPU v3-8 instance on [Google Cloud Platform](https://cloud.google.com/tpu), you'll get a cloud server running the Ubuntu system with sudo privileges, 96 CPU cores, 335 GiB memory, and a TPU device with 8 cores (totalling 128 GiB TPU memory).
+在 [Google Cloud Platform](https://cloud.google.com/tpu) 创建 TPU v3-8 实例后，你会得到一个有 sudo 权限的运行 Ubuntu 系统的云服务器，96 个 CPU 核心，335 GiB 内存，以及一个有 8 核的 TPU 设备（共 128 GiB TPU 内存）。
 
 ![](assets/0.png)
 
-In fact, this is similar to how we use GPUs. Typically, when we use a GPU, we are using a Linux server connected to the GPU. Similarly, when we use a TPU, we're using a server connected to the TPU.
+其实这与我们使用 GPU 的方式是一样的。通常我们使用 GPU 的时候，是使用一个连接了 GPU 的 Linux 服务器。同理，我们使用 TPU 的时候，也是使用一个连接了 TPU 的服务器。
 
-## 3. Introduction to the TRC Program
+## 3. TRC Program 简介
 
-### 3.1. How do I apply for the TRC program?
+### 3.1. 如何申请 TRC program？
 
-Apart from the TRC program's [homepage](https://sites.research.google/trc/about/), Shawn wrote a wonderful article about the TRC program on [google/jax#2108](https://github.com/google/jax/issues/2108#issuecomment-866238579). Anyone who is interested in TPU should read it immediately.
+除了 TRC program 的 [主页](https://sites.research.google/trc/about/)，Shawn 在 [google/jax#2108](https://github.com/google/jax/issues/2108#issuecomment-866238579) 写过一个特别好的关于 TRC program 的文章，推荐所有对 TPU 感兴趣的人立即阅读。
 
-### 3.2. Is it really free?
+### 3.2. TRC program 真的不要钱吗？
 
-For the first three months, the TRC program is completely free due to the free trial credit given when registering for Google Cloud. After three months, I spend roughly HK$13.95 (about US$1.78) per month. This expense is for the network traffic of the TPU server, while the TPU device itself is provided for free by the TRC program.
+在前三个月，TRC program 完全不要钱，因为注册 Google Cloud 的前三个月会有免费试用的赠金。三个月之后，我每个月大概只花费 HK$13.95（约合 US$1.78）。这些钱是花在 TPU 服务器的网络流量上，而 TPU 设备本身是 TRC program 免费提供的。
 
-## 4. Using TPU VM
+## 4. 使用 TPU VM
 
-### 4.1. Create a TPU VM
+### 4.1. 创建 TPU VM
 
-Open [Google Cloud Platform](https://cloud.google.com/tpu) and navigate to the [TPU Management Page](https://console.cloud.google.com/compute/tpus).
+打开 [Google Cloud Platform](https://cloud.google.com/tpu)，转到 [TPU 管理页面](https://console.cloud.google.com/compute/tpus)。
 
 ![](assets/1.png)
 
-Click the console button on the top-right corner to activate Cloud Shell.
+点击右上角的控制台按钮激活 Cloud Shell。
 
-In Cloud Shell, type the following command to create a Cloud TPU v3-8 VM:
+在 Cloud Shell 中输入以下命令创建 TPU v3-8 VM：
 
 ```sh
 until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-develop --zone europe-west4-a --accelerator-type v3-8 --version tpu-vm-base ; do : ; done
 ```
 
-Here, `node-1` is the name of the TPU VM you want to create, and `--project` is the name of your Google Cloud project.
+其中，`node-1` 是你想创建的 TPU VM 的名字，`--project` 是你的 Google Cloud project 的名字。
 
-The above command will repeatedly attempt to create the TPU VM until it succeeds.
+上述命令会持续执行创建 TPU VM 的命令直至创建成功。
 
-### 4.2. Add an SSH public key to Google Cloud
+### 4.2. 将 SSH 公钥加入 Google Cloud
 
-For Google Cloud's servers, if you want to SSH into them, using `ssh-copy-id` is the wrong approach. The correct method is:
+对于 Google Cloud 的服务器，想要 SSH 进入，使用 `ssh-copy-id` 是错误的方法。正确方法如下：
 
-First, type “SSH keys” into the Google Cloud webpage search box, go to the relevant page, then click edit, and add your computer's SSH public key.
+首先在 Google Cloud 网页的搜索框中输入 SSH keys，跳转到对应页面，然后点击 edit，加入你的电脑中的 SSH 公钥。
 
-To view your computer's SSH public key:
+查看自己电脑中 SSH 公钥的方法如下：
 
 ```sh
 cat ~/.ssh/id_rsa.pub
 ```
 
-If you haven't created an SSH key pair yet, use the following command to create one, then execute the above command to view:
+如果你还没有创建过 SSH 密钥对，需要使用如下命令创建，再执行上面的命令查看：
 
 ```sh
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
 ```
 
-When adding an SSH public key to Google Cloud, it's crucial to pay special attention to the value of the username. In the SSH public key string, the part preceding the `@` symbol at the end is the username. When added to Google Cloud, it will create a user with that name on all servers for the current project. For instance, with the string `ayaka@instance-1`, Google Cloud will create a user named `ayaka` on the server. If you wish for Google Cloud to create a different username, you can manually modify this string. Changing the mentioned string to `nixie@instance-1` would lead Google Cloud to create a user named `nixie`. Moreover, making such changes won't affect the functionality of the SSH key.
+在将 SSH 公钥加入 Google Cloud 时，需要特别注意用户名的值。在 SSH 公钥的字符串中，最后一部分的 `@` 符号前面的值为用户名。在加入 Google Cloud 时，Google Cloud 会为当前项目的所有服务器创建该用户名的用户。例如，对于 `ayaka@instance-1` 这个字符串，在加入 Google Cloud 时，Google Cloud 会在服务器中创建用户 `ayaka`。如果你希望 Google Cloud 创建其他用户名，可以手动修改这个字符串。例如，将上述字符串改为 `nixie@instance-1`，Google Cloud 就会创建用户 `nixie`。另外，这样修改不会影响 SSH 密钥的正常功能。
 
-### 4.3. SSH into TPU VM
+### 4.3. SSH 进入 TPU VM
 
-Create or edit your computer's `~/.ssh/config`:
+创建或编辑自己电脑的 `~/.ssh/config`：
 
 ```sh
 nano ~/.ssh/config
 ```
 
-Add the following content:
+加入如下内容：
 
 ```
 Host tpuv3-8-1
@@ -186,33 +186,33 @@ Host tpuv3-8-1
     Hostname 34.141.220.156
 ```
 
-Here, `tpuv3-8-1` is an arbitrary name, `User` is the username created in Google Cloud from the previous step, and `Hostname` is the IP address of the TPU VM.
+其中，`tpuv3-8-1` 是可以随意起的名字，`User` 是上一步中 Google Cloud 创建的用户名，`Hostname` 是 TPU VM 的 IP 地址。
 
-Then, on your own computer, use the following command to SSH into the TPU VM:
+然后，在自己的电脑中使用如下命令 SSH 进入 TPU VM：
 
 ```sh
 ssh tpuv3-8-1
 ```
 
-Where `tpuv3-8-1` is the name set in `~/.ssh/config`.
+其中，`tpuv3-8-1` 是在 `~/.ssh/config` 中起的名字。
 
-### 4.4. Verify that TPU VM has TPU
+### 4.4. 验证 TPU VM 具有 TPU
 
 ```sh
 ls /dev/accel*
 ```
 
-If the following output appears:
+如果出现如下输出：
 
 ```
 /dev/accel0  /dev/accel1  /dev/accel2  /dev/accel3
 ```
 
-This indicates that the TPU VM indeed has a TPU.
+则表示 TPU VM 确实具有 TPU。
 
-### 4.5. Setting up the development environment in TPU VM
+### 4.5. 在 TPU VM 中配置开发环境
 
-Update software packages:
+更新软件包：
 
 ```sh
 sudo apt-get update -y -qq
@@ -220,7 +220,7 @@ sudo apt-get upgrade -y -qq
 sudo apt-get install -y -qq golang neofetch zsh byobu
 ```
 
-Install the latest Python 3.11:
+安装最新版 Python 3.11:
 
 ```sh
 sudo apt-get install -y -qq software-properties-common
@@ -228,26 +228,26 @@ sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt-get install -y -qq python3.11-full python3.11-dev
 ```
 
-Install Oh My Zsh:
+安装 Oh My Zsh：
 
 ```sh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh $USER -s /usr/bin/zsh
 ```
 
-Create a virtual environment (venv):
+创建 venv：
 
 ```sh
 python3.11 -m venv ~/venv
 ```
 
-Activate the venv:
+激活 venv：
 
 ```sh
 . ~/venv/bin/activate
 ```
 
-Install JAX in the venv:
+在 venv 中安装 JAX：
 
 ```sh
 pip install -U pip
@@ -255,75 +255,75 @@ pip install -U wheel
 pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 ```
 
-### 4.6. Verify JAX is working properly
+### 4.6. 验证 JAX 可以正常使用
 
-After activating the venv, use the following command to verify JAX is working:
+激活 venv 后，使用如下命令验证 JAX 可以正常使用：
 
 ```sh
 python -c 'import jax; print(jax.devices())'
 ```
 
-If the output contains `TpuDevice`, this means JAX is working as expected.
+如果输出中含有 `TpuDevice`，则表明 JAX 可以正常使用。
 
-### 4.7. Using Byobu to ensure continuous program execution
+### 4.7. 使用 Byobu 确保程序持续运行
 
-Many tutorials use the method of appending `&` to commands to run them in the background, so they continue executing even after exiting SSH. However, this is a basic method. The correct approach is to use a window manager like Byobu.
+许多教程使用在命令后添加 `&` 的方法使命令转到后台运行，以便在退出 SSH 后命令仍能继续执行。然而，这样做是非常初级的方法。正确的方法是使用 Byobu 这样的窗口管理器。
 
-To run Byobu, simply use the `byobu` command. Then, execute commands within the opened window. To close the window, you can forcefully close the current window on your computer. Byobu will continue running on the server. The next time you connect to the server, you can retrieve the previous window using the `byobu` command.
+要运行 Byobu，直接使用 `byobu` 命令，然后在打开的窗口中执行命令。要关闭窗口时，可以将电脑上的当前窗口直接强行关闭，Byobu 将在服务器上继续运行。再次连接服务器时，使用 `byobu` 命令可以调出之前的窗口。
 
-Byobu has many advanced features. You can learn them by watching the official video [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus).
+Byobu 有许多高级的使用技巧，可以通过官方视频 [Learn Byobu while listening to Mozart](https://youtu.be/NawuGmcvKus) 学习。
 
-### 4.8. Configure VSCode Remote-SSH
+### 4.8. 配置 VSCode Remote-SSH
 
-Open VSCode, access the Extensions panel on the left, search and install Remote - SSH.
+打开 VSCode，在左侧打开 Extensions 面板，搜索并安装 Remote - SSH。
 
-Press <kbd>F1</kbd> to open the command palette. Type ssh, click "Remote-SSH: Connect to Host...", then click on the server name set in `~/.ssh/config` (e.g., `tpuv3-8-1`). Once VSCode completes the setup on the server, you can develop directly on the server with VSCode.
+按 <kbd>F1</kbd> 键来打开命令面板。输入 ssh，点击 “Remote-SSH: Connect to Host...” 这一项，然后点击在 `~/.ssh/config` 中设置的服务器名字（例如 `tpuv3-8-1`）。等待 VSCode 在服务器上完成设置后，就可以使用 VSCode 在服务器上进行开发。
 
 ![](assets/3.png)
 
-On your computer, you can use the following command to quickly open a directory on the server:
+在电脑上可以使用命令快速打开服务器上的某个目录。例如：
 
 ```sh
 code --remote ssh-remote+tpuv3-8-1 /home/ayaka/tpu-starter
 ```
 
-This command will open the directory `/home/ayaka/tpu-starter` on `tpuv3-8-1` using VSCode.
+这个命令会使用 VSCode 打开 `tpuv3-8-1` 上的 `/home/ayaka/tpu-starter` 这个目录。
 
-## 5. Using TPU Pod
+## 5. 使用 TPU Pod
 
-### 5.1. Create a subnet
+### 5.1. 创建子网
 
-To create a TPU Pod, you first need to create a new VPC network and then create a subnet in the corresponding area of that network (e.g., `europe-west4-a`).
+要创建 TPU Pod，需要先创建一个新的 VPC 网络，并在该网络的对应区域（例如 `europe-west4-a`）中创建子网。
 
 TODO: Purpose?
 
-### 5.2. Disable Cloud Logging
+### 5.2. 禁用 Cloud Logging
 
 TODO: Reason? Steps?
 
-### 5.3. Create TPU Pod
+### 5.3. 创建 TPU Pod
 
-Open Cloud Shell using the method described earlier for creating the TPU VM and use the following command to create a TPU v3-32 Pod:
+按前文创建 TPU VM 时使用的方法打开 Cloud Shell，使用如下命令创建 TPU v3-32 Pod：
 
 ```sh
 until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-research --zone europe-west4-a --accelerator-type v3-32 --version v2-alpha-pod --network advanced --subnetwork advanced-subnet-for-europe-west4 ; do : ; done
 ```
 
-Where `node-1` is the name you want for the TPU VM, `--project` is the name of your Google Cloud project, and `--network` and `--subnetwork` are the names of the network and subnet created in the previous step.
+其中，`node-1` 是你想创建的 TPU VM 的名字，`--project` 是你的 Google Cloud project 的名字，`--network` 和 `--subnetwork` 是上一步中创建的网络和子网的名字。
 
-### 5.4. SSH into TPU Pod
+### 5.4. SSH 进入 TPU Pod
 
-Since the TPU Pod consists of multiple hosts, we need to choose one host, designate it as Host 0, and then SSH into Host 0 to execute commands. Given that the SSH public key added on the Google Cloud web page will be propagated to all hosts, every host can be directly connected through the SSH key, allowing us to designate any host as Host 0. The method to SSH into Host 0 is the same as for the aforementioned TPU VM.
+由于 TPU Pod 是多台主机，我们需要选定一台主机，设其为 Host 0，然后 SSH 进入 Host 0 执行命令。由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以直接通过 SSH 密钥连接的，所以我们可以设任意一台主机为 Host 0。SSH 进入 Host 0 的方法与上述 TPU VM 相同。
 
-### 5.5. Modify the SSH configuration file on Host 0
+### 5.5. 修改 Host 0 上的 SSH 配置文件
 
-After SSH-ing into Host 0, the following configurations need to be made:
+SSH 进入 Host 0 后，需要作出如下配置：
 
 ```sh
 nano ~/.ssh/config
 ```
 
-Add the following content:
+加入如下内容：
 
 ```
 Host 172.21.12.*
@@ -332,53 +332,53 @@ Host 172.21.12.*
     LogLevel ERROR
 ```
 
-Here, `172.21.12.*` is determined by the IP address range of the subnet created in the previous steps. We use `172.21.12.*` because the IP address range specified when creating the subnet was 172.21.12.0/24.
+其中，`172.21.12.*` 是由前面的步骤中创建的子网的 IP 地址范围决定的。这里使用 `172.21.12.*`，是因为在前面创建子网时，指定了 IP 地址范围为 172.21.12.0/24。
 
-We need to do so because the `known_hosts` in ssh is created for preventing man-in-the-middle attacks. Since we are using an internal network environment here, we don't need to prevent such attacks or require this file, so we direct it to `/dev/null`. Additionally, having `known_hosts` requires manually confirming the server's fingerprint during the first connection, which is unnecessary in an internal network environment and is not conducive to automation.
+这样做是因为 ssh 的 `known_hosts` 是为了防止中间人攻击而创建的，而我们在这里使用的是内网环境，不需要防止中间人攻击，也就不需要这个文件，因此我们将其指定为 `/dev/null`。此外，如果有了 `known_hosts`，在第一次连接要手动确认服务器的指纹，在内网环境中这样做是没有必要的，而且不利于程序的自动化。
 
-Then, run the following command to modify the permissions of this configuration file. If the permissions are not modified, the configuration file will not take effect:
+然后执行以下命令修改这个配置文件的权限。如果不修改，则配置文件不会生效：
 
 ```sh
 chmod 600 ~/.ssh/config
 ```
 
-### 5.6. Add the SSH public key of Host 0 to all hosts
+### 5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中
 
-First, follow the above steps to generate a key pair on Host 0. Then add the generated public key to Google Cloud's SSH keys, and this public key will be automatically propagated to all hosts.
+首先按照上面的步骤在 Host 0 上生成密钥对，然后将生成的公钥加入 Google Cloud 的 SSH keys 中，这个公钥就会被自动传播到所有 Host 中。
 
-### 5.7. Configure the `podrun` command
+### 5.7. 配置 `podrun` 命令：
 
-The `podrun` command is a tool under development. When executed on Host 0, it can run commands on all hosts via SSH.
+`podrun` 命令是一个正在开发中的工具，达到的效果是在 Host 0 上执行命令，可以通过 SSH 在所有 Host 上执行。
 
-Download `podrun`:
+下载 `podrun`：
 
 ```sh
 wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/d8220b8c95789b14fe55417edc1d9482389aa2c4/podrun
 chmod +x podrun
 ```
 
-Save the internal IP addresses of the other hosts in `~/podips.txt` (one per line). To edit `~/podips.txt`, use the following command:
+将其他 Host 的内网 IP 地址保存在 `~/podips.txt` 中（每行一个）。编辑 `~/podips.txt` 可以使用如下命令：
 
 ```sh
 nano ~/podips.txt
 ```
 
-Enter venv and install Paramiko:
+进入 venv 并安装 Paramiko：
 
 ```sh
 . ~/venv/bin/activate
 pip install paramiko
 ```
 
-Use `podrun` to make all hosts purr like a kitty:
+使用 `podrun` 在所有主机上输出猫叫：
 
 ```sh
 ./podrun -iw -- echo meow
 ```
 
-### 5.8. Configure NFS
+### 5.8. 配置 NFS
 
-Install the NFS server and client:
+安装 NFS 服务器和客户端：
 
 ```sh
 ./podrun -- DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common
@@ -388,19 +388,19 @@ sudo chown -R nobody:nogroup /nfs_share
 sudo chmod 777 /nfs_share
 ```
 
-Modify `/etc/exports`:
+修改 `/etc/exports`：
 
 ```sh
 sudo nano /etc/exports
 ```
 
-Add:
+加入：
 
 ```
 /nfs_share  172.21.12.0/24(rw,sync,no_subtree_check)
 ```
 
-Execute:
+执行：
 
 ```sh
 sudo exportfs -a
@@ -415,17 +415,17 @@ touch meow
 ./podrun -iw -- ls ~/nfs_share/meow
 ```
 
-### 5.9. Setting up the development environment in TPU Pod
+### 5.9. 在 TPU Pod 中配置开发环境
 
-TODO: Refer to the steps in setting up the development environment in the TPU VM above, but each command should use `podrun -iw --` to run on all hosts.
+TODO: 参考上文在 TPU VM 中配置开发环境的步骤，但是每个命令都要使用 `podrun -iw --` 在所有 Host 上运行。
 
-### 5.10. Verify JAX is working properly
+### 5.10. 验证 JAX 可以正常使用
 
 ```sh
 ~/podrun -icw -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
 ```
 
-If the output contains `TpuDevice`, this means JAX is working as expected.
+如果输出中含有 `TpuDevice`，则表明 JAX 可以正常使用。
 
 ## 6. TPU Best Practices
 
