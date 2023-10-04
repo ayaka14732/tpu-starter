@@ -3,7 +3,8 @@
 <h4 align="center">
     <p>
         <b>한국어</b> |
-        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README.md">English</a> | 
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README.md">English</a> |
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_zh.md">中文</a>
     <p>
 </h4>
 

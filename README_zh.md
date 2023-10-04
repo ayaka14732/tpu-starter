@@ -2,7 +2,8 @@
 
 <h4 align="center">
     <p>
-        <b>English</b> |
+        <b>中文</b> |
+        <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README.md">English</a> |
         <a href="https://github.com/ayaka14732/tpu-starter/blob/main/README_ko.md">한국어</a>
     <p>
 </h4>
@@ -109,7 +110,7 @@ TPU 是一种专为机器学习设计的硬件。可以参看 Hugging Face Trans
 
 在一些展览中，TPU 会被[摆在展柜中供人观赏](https://twitter.com/walkforhours/status/1696654844134822130)，这大概是与触摸 TPU 最接近的活动。
 
-或许应聘成为 Google Cloud Infrastructure Engineer 才能真的触摸 TPU。
+或许应聘成为 Google Cloud Infrastructure Engineer 才能真正触摸 TPU 吧。
 
 ### 2.5. 创建 TPU 实例是什么意思？我创建的到底是什么？
 
@@ -127,7 +128,7 @@ TPU 是一种专为机器学习设计的硬件。可以参看 Hugging Face Trans
 
 ### 3.2. TRC program 真的不要钱吗？
 
-在前三个月，TRC program 完全不要钱，因为注册 Google Cloud 的前三个月会有免费试用的赠金。三个月之后，我每个月大概只花费 HK$13.95（约合 US$1.78）。这些钱是花在 TPU 服务器的网络访问上，而 TPU 设备本身是 TRC program 免费提供的。
+在前三个月，TRC program 完全不要钱，因为注册 Google Cloud 的前三个月会有免费试用的赠金。三个月之后，我每个月大概只花费 HK$13.95（约合 US$1.78）。这些钱是花在 TPU 服务器的网络流量上，而 TPU 设备本身是 TRC program 免费提供的。
 
 ## 4. 使用 TPU VM
 
@@ -204,7 +205,7 @@ ls /dev/accel*
 如果出现如下输出：
 
 ```
-/dev/accel0  /dev/accel1  /dev/accel2  /dev/accel
+/dev/accel0  /dev/accel1  /dev/accel2  /dev/accel3
 ```
 
 则表示 TPU VM 确实具有 TPU。
@@ -312,11 +313,11 @@ until gcloud alpha compute tpus tpu-vm create node-1 --project tpu-advanced-rese
 
 ### 5.4. SSH 进入 TPU Pod
 
-由于 TPU Pod 是多台主机，我们需要选定一台主机，设其为 Host 0，然后 SSH 进入 Host 0 并执行操作。由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以直接通过 SSH 密钥连接的，所以我们可以设任意一台主机为 Host 0。SSH 进入 Host 0 的方法与上述 TPU VM 相同。
+由于 TPU Pod 是多台主机，我们需要选定一台主机，设其为 Host 0，然后 SSH 进入 Host 0 执行命令。由于在 Google Cloud 网页上加入的 SSH 公钥会被加入到所有主机中，因此所有主机都是可以直接通过 SSH 密钥连接的，所以我们可以设任意一台主机为 Host 0。SSH 进入 Host 0 的方法与上述 TPU VM 相同。
 
 ### 5.5. 修改 Host 0 上的 SSH 配置文件
 
-SSH 进入 Host 0 后，需要作出如下设定：
+SSH 进入 Host 0 后，需要作出如下配置：
 
 ```sh
 nano ~/.ssh/config
@@ -333,7 +334,7 @@ Host 172.21.12.*
 
 其中，`172.21.12.*` 是由前面的步骤中创建的子网的 IP 地址范围决定的。这里使用 `172.21.12.*`，是因为在前面创建子网时，指定了 IP 地址范围为 172.21.12.0/24。
 
-这样做是因为 ssh 的 `known_hosts` 是为了防止中间人攻击而设置的，而我们在这里使用的是内网环境，不需要防止中间人攻击，也就不需要这个文件，因此我们将其指定为 `/dev/null`。此外，如果有了 `known_hosts`，在第一次连接要手动确认服务器的指纹，在内网环境中这样做是没有必要的，而且不利于程序的自动化。
+这样做是因为 ssh 的 `known_hosts` 是为了防止中间人攻击而创建的，而我们在这里使用的是内网环境，不需要防止中间人攻击，也就不需要这个文件，因此我们将其指定为 `/dev/null`。此外，如果有了 `known_hosts`，在第一次连接要手动确认服务器的指纹，在内网环境中这样做是没有必要的，而且不利于程序的自动化。
 
 然后执行以下命令修改这个配置文件的权限。如果不修改，则配置文件不会生效：
 
