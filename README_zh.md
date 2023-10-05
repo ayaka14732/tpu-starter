@@ -37,7 +37,7 @@
     * [5.4. SSH 进入 TPU Pod](#54-ssh-进入-tpu-pod)
     * [5.5. 修改 Host 0 上的 SSH 配置文件](#55-修改-host-0-上的-ssh-配置文件)
     * [5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中](#56-将-host-0-的-ssh-公钥加入到所有-host-中)
-    * [5.7. 配置 podrun 命令：](#57-配置-podrun-命令)
+    * [5.7. 配置 podrun 命令](#57-配置-podrun-命令)
     * [5.8. 配置 NFS](#58-配置-nfs)
     * [5.9. 在 TPU Pod 中配置开发环境](#59-在-tpu-pod-中配置开发环境)
     * [5.10. 验证 JAX 可以正常使用](#510-验证-jax-可以正常使用)
@@ -47,15 +47,12 @@
 * [7. JAX Best Practices](#7-jax-best-practices)
     * [7.1. Import convention](#71-import-convention)
     * [7.2. Manage random keys in JAX](#72-manage-random-keys-in-jax)
-    * [7.3. Serialize model parameters](#73-serialize-model-parameters)
-    * [7.4. Conversion between NumPy arrays and JAX arrays](#74-conversion-between-numpy-arrays-and-jax-arrays)
-    * [7.5. Conversion between PyTorch tensors and JAX arrays](#75-conversion-between-pytorch-tensors-and-jax-arrays)
-    * [7.6. Type annotation](#76-type-annotation)
-    * [7.7. Check if an array is either a NumPy array or a JAX array](#77-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
-    * [7.8. Get the shapes of all parameters in a nested dictionary](#78-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
-    * [7.9. The correct way to generate random numbers on CPU](#79-the-correct-way-to-generate-random-numbers-on-cpu)
-    * [7.10. Use optimizers from Optax](#710-use-optimizers-from-optax)
-    * [7.11. Use the cross-entropy loss implementation from Optax](#711-use-the-cross-entropy-loss-implementation-from-optax)
+    * [7.3. Conversion between NumPy arrays and JAX arrays](#73-conversion-between-numpy-arrays-and-jax-arrays)
+    * [7.4. Conversion between PyTorch tensors and JAX arrays](#74-conversion-between-pytorch-tensors-and-jax-arrays)
+    * [7.5. Get the shapes of all parameters in a nested dictionary](#75-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
+    * [7.6. The correct way to generate random numbers on CPU](#76-the-correct-way-to-generate-random-numbers-on-cpu)
+    * [7.7. Use optimizers from Optax](#77-use-optimizers-from-optax)
+    * [7.8. Use the cross-entropy loss implementation from Optax](#78-use-the-cross-entropy-loss-implementation-from-optax)
 * [8. How Can I...](#8-how-can-i)
     * [8.1. Share files across multiple TPU VM instances](#81-share-files-across-multiple-tpu-vm-instances)
     * [8.2. Monitor TPU usage](#82-monitor-tpu-usage)
@@ -334,7 +331,7 @@ nano ~/.ssh/config
 加入如下内容：
 
 ```
-Host 172.21.12.*
+Host 172.21.12.* 127.0.0.1
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     LogLevel ERROR
@@ -352,9 +349,21 @@ chmod 600 ~/.ssh/config
 
 ### 5.6. 将 Host 0 的 SSH 公钥加入到所有 Host 中
 
-首先按照上面的步骤在 Host 0 上生成密钥对，然后将生成的公钥加入 Google Cloud 的 SSH keys 中，这个公钥就会被自动传播到所有 Host 中。
+在 Host 0 上生成密钥对：
 
-### 5.7. 配置 `podrun` 命令：
+```sh
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+```
+
+查看生成的 SSH 公钥：
+
+```sh
+cat ~/.ssh/id_rsa.pub
+```
+
+然后将公钥加入 Google Cloud 的 SSH keys 中，这个公钥就会被自动传播到所有 Host 中。
+
+### 5.7. 配置 `podrun` 命令
 
 `podrun` 命令是一个正在开发中的工具，达到的效果是在 Host 0 上执行命令，可以通过 SSH 在所有 Host 上执行。
 
@@ -365,17 +374,30 @@ wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/d8220b8c95789b14fe
 chmod +x podrun
 ```
 
-将其他 Host 的内网 IP 地址保存在 `~/podips.txt` 中（每行一个）。编辑 `~/podips.txt` 可以使用如下命令：
+下载后使用 nano 编辑这个文件，将第一行的 `python` 改为 `python3`。
+
+TODO: Update the source.
+
+使用如下命令编辑 `~/podips.txt`：
 
 ```sh
 nano ~/podips.txt
 ```
 
-进入 venv 并安装 Paramiko：
+将其他 Host 的内网 IP 地址保存在 `~/podips.txt` 中（每行一个），例如：
 
 ```sh
-. ~/venv/bin/activate
-pip install paramiko
+172.21.12.86
+172.21.12.87
+172.21.12.83
+```
+
+TPU v3-32 包括 4 台主机，除去 Host 0 外还有 3 台主机，所以 TPU v3-32 的 `~/podips.txt` 中应该包括 3 个 IP 地址。
+
+使用系统 pip3 安装 Fabric：
+
+```sh
+pip3 install fabric
 ```
 
 使用 `podrun` 在所有主机上输出猫叫：
@@ -389,8 +411,10 @@ pip install paramiko
 安装 NFS 服务器和客户端：
 
 ```sh
-./podrun -- DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common
-sudo apt install -y -qq nfs-kernel-server
+./podrun -i -- sudo apt-get update -y -qq
+./podrun -i -- sudo apt-get upgrade -y -qq
+./podrun -- sudo apt-get install -y -qq nfs-common
+sudo apt-get install -y -qq nfs-kernel-server
 sudo mkdir -p /nfs_share
 sudo chown -R nobody:nogroup /nfs_share
 sudo chmod 777 /nfs_share
@@ -416,21 +440,56 @@ sudo systemctl restart nfs-kernel-server
 
 ./podrun -- sudo mkdir -p /nfs_share
 ./podrun -- sudo mount 172.21.12.2:/nfs_share /nfs_share
-./podrun -- ln -sf /nfs_share ~/nfs_share
+./podrun -i -- ln -sf /nfs_share ~/nfs_share
 
-cd ~/nfs_share
-touch meow
-./podrun -iw -- ls ~/nfs_share/meow
+touch ~/nfs_share/meow
+./podrun -i -- ls -la ~/nfs_share/meow
 ```
+
+其中，`172.21.12.2` 要更换为 Host 0 的内网 IP 地址。
 
 ### 5.9. 在 TPU Pod 中配置开发环境
 
-TODO: 参考上文在 TPU VM 中配置开发环境的步骤，但是每个命令都要使用 `podrun -iw --` 在所有 Host 上运行。
+保存到 `~/nfs_share/setup.sh`：
+
+```sh
+#!/bin/bash
+
+export DEBIAN_FRONTEND=noninteractive
+
+sudo apt-get update -y -qq
+sudo apt-get upgrade -y -qq
+sudo apt-get install -y -qq golang neofetch zsh byobu
+
+sudo apt-get install -y -qq software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get install -y -qq python3.11-full python3.11-dev
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+sudo chsh $USER -s /usr/bin/zsh
+
+python3.11 -m venv ~/venv
+
+. ~/venv/bin/activate
+
+pip install -U pip
+pip install -U wheel
+pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+```
+
+执行：
+
+```sh
+chmod +x ~/nfs_share/setup.sh
+./podrun -i -- ~/nfs_share/setup.sh
+```
 
 ### 5.10. 验证 JAX 可以正常使用
 
+使用如下命令验证 JAX 可以正常使用：
+
 ```sh
-~/podrun -icw -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
+./podrun -ic -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
 ```
 
 如果输出中含有 `TpuDevice`，则表明 JAX 可以正常使用。
@@ -482,27 +541,7 @@ print(subkey[1])
 print(subkey[2])
 ```
 
-### 7.3. Serialize model parameters
-
-Normally, the model parameters are represented by a nested dictionary like this:
-
-```python
-{
-    "embedding": DeviceArray,
-    "ff1": {
-        "kernel": DeviceArray,
-        "bias": DeviceArray
-    },
-    "ff2": {
-        "kernel": DeviceArray,
-        "bias": DeviceArray
-    }
-}
-```
-
-You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
-
-### 7.4. Conversion between NumPy arrays and JAX arrays
+### 7.3. Conversion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -517,7 +556,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 7.5. Conversion between PyTorch tensors and JAX arrays
+### 7.4. Conversion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
@@ -548,23 +587,13 @@ UserWarning: The given NumPy array is not writable, and PyTorch does not support
 
 If you need writable tensors, you can use `onp.array` instead of `onp.asarray` to make a copy of the original array.
 
-### 7.6. Type annotation
-
-[google/jaxtyping](https://github.com/google/jaxtyping)
-
-### 7.7. Check if an array is either a NumPy array or a JAX array
-
-```python
-isinstance(a, (np.ndarray, onp.ndarray))
-```
-
-### 7.8. Get the shapes of all parameters in a nested dictionary
+### 7.5. Get the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-### 7.9. The correct way to generate random numbers on CPU
+### 7.6. The correct way to generate random numbers on CPU
 
 Use the [jax.default_device()](https://jax.readthedocs.io/en/latest/_autosummary/jax.default_device.html) context manager:
 
@@ -581,9 +610,9 @@ with jax.default_device(device_cpu):
 
 See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
-### 7.10. Use optimizers from Optax
+### 7.7. Use optimizers from Optax
 
-### 7.11. Use the cross-entropy loss implementation from Optax
+### 7.8. Use the cross-entropy loss implementation from Optax
 
 `optax.softmax_cross_entropy_with_integer_labels`
 

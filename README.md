@@ -47,15 +47,12 @@ Everything you want to know about Google Cloud TPU
 * [7. JAX Best Practices](#7-jax-best-practices)
     * [7.1. Import convention](#71-import-convention)
     * [7.2. Manage random keys in JAX](#72-manage-random-keys-in-jax)
-    * [7.3. Serialize model parameters](#73-serialize-model-parameters)
-    * [7.4. Conversion between NumPy arrays and JAX arrays](#74-conversion-between-numpy-arrays-and-jax-arrays)
-    * [7.5. Conversion between PyTorch tensors and JAX arrays](#75-conversion-between-pytorch-tensors-and-jax-arrays)
-    * [7.6. Type annotation](#76-type-annotation)
-    * [7.7. Check if an array is either a NumPy array or a JAX array](#77-check-if-an-array-is-either-a-numpy-array-or-a-jax-array)
-    * [7.8. Get the shapes of all parameters in a nested dictionary](#78-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
-    * [7.9. The correct way to generate random numbers on CPU](#79-the-correct-way-to-generate-random-numbers-on-cpu)
-    * [7.10. Use optimizers from Optax](#710-use-optimizers-from-optax)
-    * [7.11. Use the cross-entropy loss implementation from Optax](#711-use-the-cross-entropy-loss-implementation-from-optax)
+    * [7.3. Conversion between NumPy arrays and JAX arrays](#73-conversion-between-numpy-arrays-and-jax-arrays)
+    * [7.4. Conversion between PyTorch tensors and JAX arrays](#74-conversion-between-pytorch-tensors-and-jax-arrays)
+    * [7.5. Get the shapes of all parameters in a nested dictionary](#75-get-the-shapes-of-all-parameters-in-a-nested-dictionary)
+    * [7.6. The correct way to generate random numbers on CPU](#76-the-correct-way-to-generate-random-numbers-on-cpu)
+    * [7.7. Use optimizers from Optax](#77-use-optimizers-from-optax)
+    * [7.8. Use the cross-entropy loss implementation from Optax](#78-use-the-cross-entropy-loss-implementation-from-optax)
 * [8. How Can I...](#8-how-can-i)
     * [8.1. Share files across multiple TPU VM instances](#81-share-files-across-multiple-tpu-vm-instances)
     * [8.2. Monitor TPU usage](#82-monitor-tpu-usage)
@@ -334,7 +331,7 @@ nano ~/.ssh/config
 Add the following content:
 
 ```
-Host 172.21.12.*
+Host 172.21.12.* 127.0.0.1
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     LogLevel ERROR
@@ -352,7 +349,19 @@ chmod 600 ~/.ssh/config
 
 ### 5.6. Add the SSH public key of Host 0 to all hosts
 
-First, follow the above steps to generate a key pair on Host 0. Then add the generated public key to Google Cloud's SSH keys, and this public key will be automatically propagated to all hosts.
+Generate a key pair on Host 0:
+
+```sh
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+```
+
+View the generated SSH public key:
+
+```sh
+cat ~/.ssh/id_rsa.pub
+```
+
+Add this public key to the SSH keys in Google Cloud. This key will be automatically propagated to all hosts.
 
 ### 5.7. Configure the `podrun` command
 
@@ -365,17 +374,30 @@ wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/d8220b8c95789b14fe
 chmod +x podrun
 ```
 
-Save the internal IP addresses of the other hosts in `~/podips.txt` (one per line). To edit `~/podips.txt`, use the following command:
+After downloading, edit this file with nano and replace the `python` on the first line with `python3`.
+
+TODO: Update the source.
+
+Edit `~/podips.txt` using:
 
 ```sh
 nano ~/podips.txt
 ```
 
-Enter venv and install Paramiko:
+Save the internal IP addresses of the other hosts in `~/podips.txt`, one per line. For example:
 
 ```sh
-. ~/venv/bin/activate
-pip install paramiko
+172.21.12.86
+172.21.12.87
+172.21.12.83
+```
+
+A TPU v3-32 includes 4 hosts. Excluding Host 0, there are 3 more hosts. Hence, the `~/podips.txt` for TPU v3-32 should contain 3 IP addresses.
+
+Install Fabric using the system pip3:
+
+```sh
+pip3 install fabric
 ```
 
 Use `podrun` to make all hosts purr like a kitty:
@@ -389,8 +411,10 @@ Use `podrun` to make all hosts purr like a kitty:
 Install the NFS server and client:
 
 ```sh
-./podrun -- DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -qq nfs-common
-sudo apt install -y -qq nfs-kernel-server
+./podrun -i -- sudo apt-get update -y -qq
+./podrun -i -- sudo apt-get upgrade -y -qq
+./podrun -- sudo apt-get install -y -qq nfs-common
+sudo apt-get install -y -qq nfs-kernel-server
 sudo mkdir -p /nfs_share
 sudo chown -R nobody:nogroup /nfs_share
 sudo chmod 777 /nfs_share
@@ -416,21 +440,54 @@ sudo systemctl restart nfs-kernel-server
 
 ./podrun -- sudo mkdir -p /nfs_share
 ./podrun -- sudo mount 172.21.12.2:/nfs_share /nfs_share
-./podrun -- ln -sf /nfs_share ~/nfs_share
+./podrun -i -- ln -sf /nfs_share ~/nfs_share
 
-cd ~/nfs_share
-touch meow
-./podrun -iw -- ls ~/nfs_share/meow
+touch ~/nfs_share/meow
+./podrun -i -- ls -la ~/nfs_share/meow
 ```
+
+Replace `172.21.12.2` with the actual internal IP address of Host 0.
 
 ### 5.9. Setting up the development environment in TPU Pod
 
-TODO: Refer to the steps in setting up the development environment in the TPU VM above, but each command should use `podrun -iw --` to run on all hosts.
+Save to `~/nfs_share/setup.sh`:
+
+```sh
+#!/bin/bash
+
+export DEBIAN_FRONTEND=noninteractive
+
+sudo apt-get update -y -qq
+sudo apt-get upgrade -y -qq
+sudo apt-get install -y -qq golang neofetch zsh byobu
+
+sudo apt-get install -y -qq software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get install -y -qq python3.11-full python3.11-dev
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+sudo chsh $USER -s /usr/bin/zsh
+
+python3.11 -m venv ~/venv
+
+. ~/venv/bin/activate
+
+pip install -U pip
+pip install -U wheel
+pip install -U "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+```
+
+Then execute:
+
+```sh
+chmod +x ~/nfs_share/setup.sh
+./podrun -i ~/nfs_share/setup.sh
+```
 
 ### 5.10. Verify JAX is working properly
 
 ```sh
-~/podrun -icw -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
+./podrun -ic -- ~/venv/bin/python -c 'import jax; jax.distributed.initialize(); jax.process_index() == 0 and print(jax.devices())'
 ```
 
 If the output contains `TpuDevice`, this means JAX is working as expected.
@@ -482,27 +539,7 @@ print(subkey[1])
 print(subkey[2])
 ```
 
-### 7.3. Serialize model parameters
-
-Normally, the model parameters are represented by a nested dictionary like this:
-
-```python
-{
-    "embedding": DeviceArray,
-    "ff1": {
-        "kernel": DeviceArray,
-        "bias": DeviceArray
-    },
-    "ff2": {
-        "kernel": DeviceArray,
-        "bias": DeviceArray
-    }
-}
-```
-
-You can use [`flax.serialization.msgpack_serialize`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to serialize the parameters into bytes, and use [`flax.serialization.msgpack_restore`](https://flax.readthedocs.io/en/latest/flax.serialization.html#flax.serialization.msgpack_serialize) to convert them back.
-
-### 7.4. Conversion between NumPy arrays and JAX arrays
+### 7.3. Conversion between NumPy arrays and JAX arrays
 
 Use [`np.asarray`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.asarray.html) and [`onp.asarray`](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
 
@@ -517,7 +554,7 @@ c = onp.array([1, 2, 3])  # NumPy array
 d = np.asarray(c)  # converted to JAX array
 ```
 
-### 7.5. Conversion between PyTorch tensors and JAX arrays
+### 7.4. Conversion between PyTorch tensors and JAX arrays
 
 Convert a PyTorch tensor to a JAX array:
 
@@ -548,23 +585,13 @@ UserWarning: The given NumPy array is not writable, and PyTorch does not support
 
 If you need writable tensors, you can use `onp.array` instead of `onp.asarray` to make a copy of the original array.
 
-### 7.6. Type annotation
-
-[google/jaxtyping](https://github.com/google/jaxtyping)
-
-### 7.7. Check if an array is either a NumPy array or a JAX array
-
-```python
-isinstance(a, (np.ndarray, onp.ndarray))
-```
-
-### 7.8. Get the shapes of all parameters in a nested dictionary
+### 7.5. Get the shapes of all parameters in a nested dictionary
 
 ```python
 jax.tree_map(lambda x: x.shape, params)
 ```
 
-### 7.9. The correct way to generate random numbers on CPU
+### 7.6. The correct way to generate random numbers on CPU
 
 Use the [jax.default_device()](https://jax.readthedocs.io/en/latest/_autosummary/jax.default_device.html) context manager:
 
@@ -581,9 +608,9 @@ with jax.default_device(device_cpu):
 
 See <https://github.com/google/jax/discussions/9691#discussioncomment-3650311>.
 
-### 7.10. Use optimizers from Optax
+### 7.7. Use optimizers from Optax
 
-### 7.11. Use the cross-entropy loss implementation from Optax
+### 7.8. Use the cross-entropy loss implementation from Optax
 
 `optax.softmax_cross_entropy_with_integer_labels`
 
