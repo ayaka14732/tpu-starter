@@ -370,13 +370,9 @@ The `podrun` command is a tool under development. When executed on Host 0, it ca
 Download `podrun`:
 
 ```sh
-wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/d8220b8c95789b14fe55417edc1d9482389aa2c4/podrun
+wget https://raw.githubusercontent.com/ayaka14732/llama-2-jax/18e9625f7316271e4c0ad9dea233cfe23c400c9b/podrun
 chmod +x podrun
 ```
-
-After downloading, edit this file with nano and replace the `python` on the first line with `python3`.
-
-TODO: Update the source.
 
 Edit `~/podips.txt` using:
 
