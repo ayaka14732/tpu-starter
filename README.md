@@ -71,7 +71,7 @@ This project was inspired by [Cloud Run FAQ](https://github.com/ahmetb/cloud-run
 
 ## 1. Community
 
-Google's official Discord has established the `#tpu-research-cloud` channel, as mentioned at https://twitter.com/googledeveurope/status/1583032777984835585.
+Google's [official Discord server](https://discord.com/invite/google-dev-community) has established the `#tpu-research-cloud` channel.
 
 ## 2. Introduction to TPU
 
