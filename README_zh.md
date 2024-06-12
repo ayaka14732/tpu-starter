@@ -71,7 +71,7 @@
 
 ## 1. 社群
 
-谷歌官方 Discord 已经建立了 `#tpu-research-cloud` channel 频道，参见 https://twitter.com/googledeveurope/status/1583032777984835585。
+谷歌[官方 Discord 服务器](https://discord.com/invite/google-dev-community)已经建立了 `#tpu-research-cloud` channel 频道。
 
 ## 2. 简介
 
