@@ -217,12 +217,12 @@ sudo apt-get upgrade -y -qq
 sudo apt-get install -y -qq golang neofetch zsh byobu
 ```
 
-Install the latest Python 3.11:
+Install the latest Python 3.12:
 
 ```sh
 sudo apt-get install -y -qq software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.11-full python3.11-dev
+sudo apt-get install -y -qq python3.12-full python3.12-dev
 ```
 
 Install Oh My Zsh:
@@ -235,7 +235,7 @@ sudo chsh $USER -s /usr/bin/zsh
 Create a virtual environment (venv):
 
 ```sh
-python3.11 -m venv ~/venv
+python3.12 -m venv ~/venv
 ```
 
 Activate the venv:
@@ -459,12 +459,12 @@ sudo apt-get install -y -qq golang neofetch zsh byobu
 
 sudo apt-get install -y -qq software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get install -y -qq python3.11-full python3.11-dev
+sudo apt-get install -y -qq python3.12-full python3.12-dev
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh $USER -s /usr/bin/zsh
 
-python3.11 -m venv ~/venv
+python3.12 -m venv ~/venv
 
 . ~/venv/bin/activate
 
